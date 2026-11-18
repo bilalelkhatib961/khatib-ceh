@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { AlertTriangle, ChevronLeft, ChevronRight, Eraser, Flag, Keyboard, Send, Timer } from 'lucide-react';
 import { useApp } from '../hooks/useApp';
 import { Empty, Modal } from '../components/ui';
-import { gradeSession } from '../utils/exam';
+import { gradeSession, isTimed } from '../utils/exam';
 import { fmtClock } from '../utils/stats';
 import type { ActiveSession } from '../types';
 import { saveActiveSession } from '../services/storage';
@@ -22,9 +22,8 @@ export default function ExamRunner() {
   useEffect(() => setS(app.activeSession), [app.activeSession]);
 
   const qids = useMemo(() => (s ? s.questionIds.filter((id) => app.qById.has(id)) : []), [s, app.qById]);
-  const untimed = !!s && !s.deadline; // deadline 0 = no time limit
+  const untimed = !!s && !isTimed(s); // only the mock exam counts down; quizzes and practice show elapsed time
   const remaining = s && !untimed ? Math.max(0, Math.floor((s.deadline - now) / 1000)) : 0;
-  const elapsed = s ? Math.max(0, Math.floor((now - new Date(s.startedAt).getTime()) / 1000)) : 0;
 
   const update = useCallback((fn: (x: ActiveSession) => ActiveSession) => {
     setS((prev) => {
@@ -137,9 +136,16 @@ export default function ExamRunner() {
               Question <span className="text-ink">{s.current + 1}</span> / {qids.length} · answered {answered}
             </div>
           </div>
-          <div className={`flex shrink-0 items-center gap-2 rounded-lg border px-2.5 py-1.5 font-mono text-lg font-semibold sm:px-3 sm:text-xl ${low ? 'border-bad/60 text-bad' : 'border-cyan/30 text-cyan'}`} aria-live="polite">
-            <Timer size={18} /> {untimed ? <span title="No time limit · elapsed time">{fmtClock(elapsed)}</span> : fmtClock(remaining)}
-          </div>
+          {untimed ? (
+            // quizzes and practice: no countdown and no running clock (time spent is still recorded for the results page)
+            <div className="shrink-0 rounded-lg border border-line px-2.5 py-1.5 font-mono text-xs text-muted sm:px-3" title="Only the full mock exam is timed">
+              No timer
+            </div>
+          ) : (
+            <div className={`flex shrink-0 items-center gap-2 rounded-lg border px-2.5 py-1.5 font-mono text-lg font-semibold sm:px-3 sm:text-xl ${low ? 'border-bad/60 text-bad' : 'border-cyan/30 text-cyan'}`} aria-live="polite">
+              <Timer size={18} /> {fmtClock(remaining)}
+            </div>
+          )}
         </div>
 
         <article className="panel p-4 sm:p-6">
@@ -233,7 +239,7 @@ export default function ExamRunner() {
       <Modal open={confirm} onClose={() => setConfirm(false)} title="Submit assessment?">
         <div className="space-y-3 text-sm">
           <p>
-            You answered <b className="font-mono text-cyan">{answered}</b> of <b className="font-mono">{qids.length}</b> questions. {untimed ? <>Time spent: <span className="font-mono">{fmtClock(elapsed)}</span> (no time limit).</> : <>Time remaining: <span className="font-mono">{fmtClock(remaining)}</span>.</>}
+            You answered <b className="font-mono text-cyan">{answered}</b> of <b className="font-mono">{qids.length}</b> questions.{untimed ? null : <> Time remaining: <span className="font-mono">{fmtClock(remaining)}</span>.</>}
           </p>
           {unanswered > 0 && (
             <div className="flex gap-2 rounded-lg border border-warn/40 bg-warn/5 p-3 text-warn">

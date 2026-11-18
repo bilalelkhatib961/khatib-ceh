@@ -71,12 +71,11 @@ export default function Results() {
       learningObjectiveId: a.learningObjectiveId,
       questions: shuffle(qs),
       requestedCount: qs.length || 1,
-      seconds: Math.max(5, Math.ceil(qs.length * 1.6)) * 60,
     });
   };
   const retake = () => {
     const qs = qList(a.answers.map((x) => x.questionId));
-    launch({ name: a.name, mode: a.mode, practiceKind: a.practiceKind, scopeKey: a.scopeKey, chapterId: a.chapterId, learningObjectiveId: a.learningObjectiveId, questions: shuffle(qs), requestedCount: a.totalQuestions, seconds: a.timeLimitSeconds });
+    launch({ name: a.name, mode: a.mode, practiceKind: a.practiceKind, scopeKey: a.scopeKey, chapterId: a.chapterId, learningObjectiveId: a.learningObjectiveId, questions: shuffle(qs), requestedCount: a.totalQuestions });
   };
   const fresh = () => {
     let qs: Question[] = [];
@@ -96,7 +95,7 @@ export default function Results() {
         ? buildPracticeSet(kind, { questions: app.questions, progress: app.progress, bookmarks: app.bookmarks, chapters: app.bank!.chapters, objectives: app.bank!.objectives, attempts: app.attempts, count: a.totalQuestions })
         : shuffle(qList(a.answers.map((x) => x.questionId)));
     }
-    launch({ name: a.name, mode: a.mode, practiceKind: a.practiceKind, scopeKey: a.scopeKey, chapterId: a.chapterId, learningObjectiveId: a.learningObjectiveId, questions: qs, requestedCount: req, seconds: a.timeLimitSeconds });
+    launch({ name: a.name, mode: a.mode, practiceKind: a.practiceKind, scopeKey: a.scopeKey, chapterId: a.chapterId, learningObjectiveId: a.learningObjectiveId, questions: qs, requestedCount: req });
   };
 
   const cats: { k: Cat; label: string; n: number }[] = [

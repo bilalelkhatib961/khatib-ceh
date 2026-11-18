@@ -7,7 +7,7 @@ import { ClassBadge, Crumbs, Empty, Pct, SectionTitle, StatCard } from '../compo
 import { TrendLine } from '../components/Charts';
 import QuestionList from '../components/QuestionList';
 import { currentStatsFor, CURRENT_RULE, fmtDate, originalStatsFor, practiceStatsFor } from '../utils/stats';
-import { eligible, MODE_CONFIG, shuffle } from '../utils/exam';
+import { eligible, shuffle } from '../utils/exam';
 import { byPriority, isMistake } from '../utils/practice';
 
 type Tab = 'correct' | 'incorrect' | 'all';
@@ -43,7 +43,6 @@ export default function ObjectiveDetail() {
       // every verified question in the objective (originally correct and incorrect), untimed
       questions: shuffle(eligible(qs)),
       requestedCount: eligible(qs).length,
-      seconds: MODE_CONFIG['objective-quiz'].seconds,
     });
   const startIncorrect = () => {
     const m = byPriority(eligible(qs).filter((q) => isMistake(app.progress.get(q.id))), app.progress);
@@ -56,7 +55,6 @@ export default function ObjectiveDetail() {
       learningObjectiveId: obj.id,
       questions: m,
       requestedCount: Math.max(1, m.length),
-      seconds: Math.max(5, Math.ceil(m.length * 1.5)) * 60,
     });
   };
 

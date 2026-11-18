@@ -16,7 +16,7 @@ export default function ExamCenter() {
   const pool = eligible(app.questions);
   const [chapter, setChapter] = useState(bank.chapters[0]?.id ?? '');
   const [objective, setObjective] = useState(bank.objectives[0]?.id ?? '');
-  const [custom, setCustom] = useState({ chapters: [] as string[], count: 40, minutes: 60, source: 'all' as 'all' | 'original-incorrect' | 'original-correct' | 'unpracticed' | 'needs-review' | 'bookmarked' });
+  const [custom, setCustom] = useState({ chapters: [] as string[], count: 40, source: 'all' as 'all' | 'original-incorrect' | 'original-correct' | 'unpracticed' | 'needs-review' | 'bookmarked' });
 
   const ctx = { questions: app.questions, progress: app.progress, bookmarks: app.bookmarks, chapters: bank.chapters, objectives: bank.objectives, attempts: app.attempts };
 
@@ -27,7 +27,6 @@ export default function ExamCenter() {
       scopeKey: 'mock-exam',
       questions: pickSpread(pool, 125, (q) => q.chapterId ?? 'mock'),
       requestedCount: 125,
-      seconds: MODE_CONFIG['mock-exam'].seconds,
     });
   const startChapter = () => {
     const c = app.chById.get(chapter)!;
@@ -38,7 +37,6 @@ export default function ExamCenter() {
       chapterId: c.id,
       questions: shuffle(pool.filter((q) => q.chapterId === c.id)),
       requestedCount: pool.filter((q) => q.chapterId === c.id).length,
-      seconds: 0, // untimed
     });
   };
   const startObjective = () => {
@@ -52,10 +50,9 @@ export default function ExamCenter() {
       learningObjectiveId: o.id,
       questions: shuffle(pool.filter((q) => q.learningObjectiveId === o.id)),
       requestedCount: pool.filter((q) => q.learningObjectiveId === o.id).length,
-      seconds: 0, // untimed
     });
   };
-  const startPractice = (kind: PracticeKind, count = 30, minutes = 45) =>
+  const startPractice = (kind: PracticeKind, count = 30) =>
     launch({
       name: PRACTICE_LABEL[kind],
       mode: 'custom-practice',
@@ -63,7 +60,6 @@ export default function ExamCenter() {
       scopeKey: `practice:${kind}`,
       questions: buildPracticeSet(kind, { ...ctx, count }),
       requestedCount: count,
-      seconds: minutes * 60,
     });
   const startCustom = () =>
     launch({
@@ -73,7 +69,6 @@ export default function ExamCenter() {
       scopeKey: `practice:custom:${custom.source}:${[...custom.chapters].sort().join(',') || 'all'}`,
       questions: buildPracticeSet('custom', { ...ctx, count: custom.count, chapterIds: custom.chapters, source: custom.source }),
       requestedCount: custom.count,
-      seconds: custom.minutes * 60,
     });
 
   const modes = [
@@ -163,7 +158,7 @@ export default function ExamCenter() {
               <p.icon size={18} className="text-magenta" />
               <span className="font-medium">{PRACTICE_LABEL[p.kind]}</span>
               <span className="text-xs text-muted">{p.text}</span>
-              <span className="mt-auto font-mono text-[11px] text-muted">up to 30 q · 45 min</span>
+              <span className="mt-auto font-mono text-[11px] text-muted">up to 30 q · no timer</span>
             </button>
           ))}
         </div>
@@ -191,13 +186,9 @@ export default function ExamCenter() {
             </div>
           </div>
           <div className="grid grid-cols-2 gap-3">
-            <label className="text-xs text-muted">
+            <label className="col-span-2 text-xs text-muted">
               Questions
               <input className="input mt-1 w-full" type="number" inputMode="numeric" min={1} max={500} value={custom.count} onChange={(e) => setCustom((x) => ({ ...x, count: Math.max(1, Number(e.target.value) || 1) }))} />
-            </label>
-            <label className="text-xs text-muted">
-              Minutes
-              <input className="input mt-1 w-full" type="number" inputMode="numeric" min={1} max={600} value={custom.minutes} onChange={(e) => setCustom((x) => ({ ...x, minutes: Math.max(1, Number(e.target.value) || 1) }))} />
             </label>
             <label className="col-span-2 text-xs text-muted">
               Question source
@@ -212,7 +203,8 @@ export default function ExamCenter() {
             </label>
           </div>
         </div>
-        <div className="mt-4 flex justify-end">
+        <div className="mt-4 flex items-center justify-end gap-3">
+          <span className="font-mono text-[11px] text-muted">no timer</span>
           <button className="btn-primary" onClick={startCustom}>
             Start custom practice
           </button>

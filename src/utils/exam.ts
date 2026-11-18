@@ -8,6 +8,16 @@ export const MODE_CONFIG: Record<'mock-exam' | 'chapter-quiz' | 'objective-quiz'
   'objective-quiz': { count: 0, seconds: 0, label: 'Learning Objective Quiz' },
 };
 
+/** Only the full mock exam has a time limit; every quiz and practice session is untimed. */
+export function timeLimitFor(mode: AssessmentMode): number {
+  return mode === 'mock-exam' ? MODE_CONFIG['mock-exam'].seconds : 0;
+}
+
+/** Whether an unfinished session runs against a countdown (also untimes quizzes saved before this rule). */
+export function isTimed(s: Pick<ActiveSession, 'mode' | 'deadline'>): boolean {
+  return s.mode === 'mock-exam' && s.deadline > 0;
+}
+
 export function uuid(): string {
   if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) return crypto.randomUUID();
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
@@ -76,7 +86,6 @@ export interface SessionSpec {
   learningObjectiveId?: string | null;
   questions: Question[];
   requestedCount: number;
-  seconds: number;
   shuffleOptions: boolean;
 }
 
@@ -86,6 +95,7 @@ export function createSession(spec: SessionSpec): ActiveSession {
     const ids = q.options.map((o) => o.id);
     optionOrders[q.id] = spec.shuffleOptions && q.shuffleSafe ? shuffle(ids) : ids;
   }
+  const seconds = timeLimitFor(spec.mode);
   return {
     schemaVersion: SCHEMA_VERSION,
     id: uuid(),
@@ -96,8 +106,8 @@ export function createSession(spec: SessionSpec): ActiveSession {
     chapterId: spec.chapterId ?? null,
     learningObjectiveId: spec.learningObjectiveId ?? null,
     startedAt: new Date().toISOString(),
-    deadline: spec.seconds > 0 ? Date.now() + spec.seconds * 1000 : 0, // 0 = untimed
-    timeLimitSeconds: spec.seconds,
+    deadline: seconds > 0 ? Date.now() + seconds * 1000 : 0, // 0 = untimed
+    timeLimitSeconds: seconds,
     questionIds: spec.questions.map((q) => q.id),
     optionOrders,
     answers: {},
@@ -135,7 +145,8 @@ export function gradeSession(s: ActiveSession, byId: Map<string, Question>, bank
   const unansweredCount = answers.filter((a) => a.result === 'unanswered').length;
   const completed = new Date();
   const elapsed = Math.round((completed.getTime() - new Date(s.startedAt).getTime()) / 1000);
-  const duration = s.timeLimitSeconds > 0 ? Math.min(s.timeLimitSeconds, elapsed) : elapsed;
+  const limit = isTimed(s) ? s.timeLimitSeconds : 0;
+  const duration = limit > 0 ? Math.min(limit, elapsed) : elapsed;
   return {
     schemaVersion: SCHEMA_VERSION,
     id: s.id,
@@ -147,7 +158,7 @@ export function gradeSession(s: ActiveSession, byId: Map<string, Question>, bank
     learningObjectiveId: s.learningObjectiveId,
     startedAt: s.startedAt,
     completedAt: completed.toISOString(),
-    timeLimitSeconds: s.timeLimitSeconds,
+    timeLimitSeconds: limit,
     durationSeconds: duration,
     totalQuestions: answers.length,
     correctCount,

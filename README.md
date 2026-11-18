@@ -68,8 +68,8 @@ Completed assessments are saved as individual JSON files. To set this up:
 |---|---|
 | Dashboard | Original CEH statistics shown separately from KHATIB CEH practice statistics, plus charts, weakest areas and recommended next sessions |
 | Chapters → Objectives | Accuracy per chapter and objective. Each objective has **Correct / Incorrect / All** tabs; the Incorrect and All tabs hide answers until you click **Reveal Answer** |
-| Exam Center | **Mock exam** (125 questions, 4 h), **chapter quiz** (30 questions, 1 h), **objective quiz** (10 questions, 15 min), and the practice modes Mistakes, Bookmarks, Weak chapters, Weak objectives, Unpracticed and Custom |
-| Exam runner | One question at a time, with a navigator, mark-for-review, clear answer, a timer that keeps running across refresh or close, auto-submit, and keyboard shortcuts (1–7 / A–G, ←/→, M, X) |
+| Exam Center | **Mock exam** (125 questions, 4 h): the only timed assessment. **Chapter quiz** (every verified question in the chapter), **objective quiz** (every verified question in the objective), and the practice modes Mistakes, Bookmarks, Weak chapters, Weak objectives, Unpracticed and Custom have no timer |
+| Exam runner | One question at a time, with a navigator, mark-for-review, clear answer, progress that survives refresh or close, and keyboard shortcuts (1–7 / A–G, ←/→, M, X). The mock exam's 4 h countdown keeps running across refresh or close and auto-submits at zero |
 | Results / History | Score breakdowns, answer review, retry incorrect, retake, trends, filters and JSON export |
 | Weakness Radar | Learning states with transparent rules, a prioritized study queue, regression detection and inferred topic tags |
 | Settings | Exam date, target score, option shuffling, storage folder, the extraction report and the **manual review queue** |

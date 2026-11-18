@@ -64,18 +64,17 @@ export default function Dashboard() {
       scopeKey: 'mock-exam',
       questions: pickSpread(pool, MODE_CONFIG['mock-exam'].count, (q) => q.chapterId ?? 'mock'),
       requestedCount: MODE_CONFIG['mock-exam'].count,
-      seconds: MODE_CONFIG['mock-exam'].seconds,
     });
   };
   const startMistakes = () => {
     const qs = buildPracticeSet('mistakes', { questions, progress, bookmarks: app.bookmarks, chapters: bank.chapters, objectives: bank.objectives, attempts, count: 30 });
-    launch({ name: 'Practice My Mistakes', mode: 'custom-practice', practiceKind: 'mistakes', scopeKey: 'practice:mistakes', questions: qs, requestedCount: 30, seconds: 45 * 60 });
+    launch({ name: 'Practice My Mistakes', mode: 'custom-practice', practiceKind: 'mistakes', scopeKey: 'practice:mistakes', questions: qs, requestedCount: 30 });
   };
 
   // recommendations derived from recorded data
   const recs: { title: string; reason: string; action: () => void; icon: typeof Play }[] = [];
   if (app.activeSession)
-    recs.push({ title: `Resume “${app.activeSession.name}”`, reason: 'You have an unfinished timed assessment.', action: () => nav('/exam/run'), icon: RotateCcw });
+    recs.push({ title: `Resume “${app.activeSession.name}”`, reason: 'You have an unfinished assessment.', action: () => nav('/exam/run'), icon: RotateCcw });
   if (weakObj[0]) {
     const o = weakObj[0].o;
     const ch = app.chById.get(o.chapterId)!;

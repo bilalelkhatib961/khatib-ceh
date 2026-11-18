@@ -8,7 +8,7 @@ import { TrendLine } from '../components/Charts';
 import QuestionList from '../components/QuestionList';
 import { Mini } from './Chapters';
 import { Classification, classify, currentStatsFor, CURRENT_RULE, fmtDate, originalStatsFor, practiceStatsFor } from '../utils/stats';
-import { eligible, MODE_CONFIG, shuffle } from '../utils/exam';
+import { eligible, shuffle } from '../utils/exam';
 import { byPriority, isMistake } from '../utils/practice';
 
 export default function ChapterDetail() {
@@ -42,7 +42,6 @@ export default function ChapterDetail() {
       chapterId: ch.id,
       questions: shuffle(eligible(qs)), // every verified question in the chapter
       requestedCount: eligible(qs).length,
-      seconds: MODE_CONFIG['chapter-quiz'].seconds,
     });
   const startMistakes = () => {
     const m = byPriority(eligible(qs).filter((q) => isMistake(app.progress.get(q.id))), app.progress).slice(0, 30);
@@ -54,7 +53,6 @@ export default function ChapterDetail() {
       chapterId: ch.id,
       questions: m,
       requestedCount: Math.max(m.length, 1),
-      seconds: Math.max(10, m.length * 1.5) * 60,
     });
   };
 

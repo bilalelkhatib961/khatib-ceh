@@ -17,7 +17,6 @@ export default function Bookmarks() {
       scopeKey: 'practice:bookmarks',
       questions: pool,
       requestedCount: Math.min(50, Math.max(1, qs.length)),
-      seconds: Math.max(5, Math.ceil(pool.length * 1.5)) * 60,
     });
   };
   return (

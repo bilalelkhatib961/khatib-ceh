@@ -106,7 +106,6 @@ export default function WeaknessRadar() {
       scopeKey: `practice:radar:${cat}`,
       questions: qs,
       requestedCount: Math.min(40, Math.max(1, lists[cat].length)),
-      seconds: Math.max(5, Math.ceil(qs.length * 1.5)) * 60,
     });
   };
 

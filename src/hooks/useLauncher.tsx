@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { AlertTriangle, Play } from 'lucide-react';
 import { Modal } from '../components/ui';
 import { useApp } from './useApp';
-import { createSession, SessionSpec } from '../utils/exam';
+import { createSession, SessionSpec, timeLimitFor } from '../utils/exam';
 import { fmtLimit } from '../utils/stats';
 
 /** Shared "start an assessment" flow with insufficient-question and active-session handling. */
@@ -22,6 +22,7 @@ export function useLauncher() {
   const launch = (s: Omit<SessionSpec, 'shuffleOptions'> & { shuffleOptions?: boolean }) => setSpec({ shuffleOptions: app.settings.shuffleOptions, ...s });
 
   const short = spec ? spec.questions.length < spec.requestedCount : false;
+  const seconds = spec ? timeLimitFor(spec.mode) : 0; // only the mock exam is timed
   const dialog = (
     <Modal open={!!spec} onClose={() => setSpec(null)} title={spec?.name ?? ''}>
       {spec && (
@@ -40,7 +41,7 @@ export function useLauncher() {
                 </div>
                 <div className="panel p-3">
                   <div className="label">Time limit</div>
-                  <div className="stat text-xl">{fmtLimit(spec.seconds)}</div>
+                  <div className="stat text-xl">{fmtLimit(seconds)}</div>
                 </div>
               </div>
               {short && (
@@ -48,7 +49,7 @@ export function useLauncher() {
                   <AlertTriangle size={18} className="shrink-0" />
                   <span>
                     Only <b>{spec.questions.length}</b> verified unique questions are available (requested {spec.requestedCount}). All available questions will be used — none are
-                    duplicated or invented. {spec.seconds > 0 ? `The ${fmtLimit(spec.seconds)} time limit is kept.` : ''}
+                    duplicated or invented. {seconds > 0 ? `The ${fmtLimit(seconds)} time limit is kept.` : ''}
                   </span>
                 </div>
               )}
@@ -58,7 +59,7 @@ export function useLauncher() {
                   <span>An unfinished assessment (“{app.activeSession.name}”) exists. Starting a new one discards it without saving.</span>
                 </div>
               )}
-              <p className="text-muted">Answers are not revealed until you submit. {spec.seconds > 0 ? 'The timer keeps running if you close or refresh the page.' : 'Untimed: your progress is saved if you close or refresh the page.'}</p>
+              <p className="text-muted">Answers are not revealed until you submit. {seconds > 0 ? 'The timer keeps running if you close or refresh the page.' : 'Untimed: your progress is saved if you close or refresh the page.'}</p>
             </>
           )}
           <div className="flex flex-wrap justify-end gap-2">
