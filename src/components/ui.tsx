@@ -101,6 +101,66 @@ export function Modal({ open, onClose, title, children }: { open: boolean; onClo
   );
 }
 
+const BAND_ORDER: Classification[] = ['Mastered', 'Strong', 'Needs Review', 'Weak', 'Critical', 'No data'];
+const BAND_RANGE: Record<Classification, string> = {
+  Mastered: '90–100%',
+  Strong: '80–89%',
+  'Needs Review': '70–79%',
+  Weak: '50–69%',
+  Critical: 'below 50%',
+  'No data': 'not attempted',
+};
+
+/**
+ * Count of items per personal study band (based on the accuracy values passed in).
+ * Clicking a card selects that band (click again to clear); "No data" is shown only when present.
+ */
+export function BandSummary({
+  values,
+  noun,
+  selected,
+  onSelect,
+}: {
+  values: (number | null)[];
+  noun: string;
+  selected: Classification | null;
+  onSelect: (c: Classification | null) => void;
+}) {
+  const counts = new Map<Classification, number>(BAND_ORDER.map((b) => [b, 0]));
+  for (const v of values) counts.set(classify(v), counts.get(classify(v))! + 1);
+  const bands = BAND_ORDER.filter((b) => b !== 'No data' || counts.get(b)! > 0);
+  return (
+    <div className={`grid grid-cols-2 gap-3 sm:grid-cols-3 ${bands.length > 5 ? 'lg:grid-cols-6' : 'lg:grid-cols-5'}`}>
+      {bands.map((b) => {
+        const n = counts.get(b)!;
+        const col = classColor[b];
+        const on = selected === b;
+        return (
+          <button
+            key={b}
+            onClick={() => onSelect(on ? null : b)}
+            aria-pressed={on}
+            title={on ? 'Click to show all' : `Show only ${b} ${noun}`}
+            className={`panel p-4 text-left transition-colors hover:border-white/20`}
+            style={on ? { borderColor: col, boxShadow: `0 0 0 1px ${col}55` } : undefined}
+          >
+            <div className="flex items-center justify-between">
+              <span className="label" style={{ color: col }}>
+                {b}
+              </span>
+              <span className="h-2.5 w-2.5 rounded-full" style={{ background: col }} />
+            </div>
+            <div className="stat mt-2">{n}</div>
+            <div className="mt-1 text-xs text-muted">
+              {n === 1 ? noun.replace(/s$/, '') : noun} · {BAND_RANGE[b]}
+            </div>
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
 export function Pct({ v, digits = 0 }: { v: number | null; digits?: number }) {
   if (v === null || v === undefined) return <span className="text-muted">—</span>;
   return <span style={{ color: classColor[classify(v)] }}>{v.toFixed(digits)}%</span>;

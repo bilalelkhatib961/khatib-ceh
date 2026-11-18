@@ -2,8 +2,8 @@ import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Layers } from 'lucide-react';
 import { useApp } from '../hooks/useApp';
-import { Bar, ClassBadge, Pct } from '../components/ui';
-import { currentStatsFor, originalStatsFor, practiceStatsFor } from '../utils/stats';
+import { BandSummary, Bar, ClassBadge, Empty, Pct } from '../components/ui';
+import { Classification, classify, currentStatsFor, originalStatsFor, practiceStatsFor } from '../utils/stats';
 
 type SortKey = 'number' | 'lowest' | 'highest' | 'incorrect' | 'least-practiced';
 
@@ -25,6 +25,7 @@ export function useChapterRows() {
 export default function Chapters() {
   const rows = useChapterRows();
   const [sort, setSort] = useState<SortKey>('number');
+  const [band, setBand] = useState<Classification | null>(null);
   const sorted = useMemo(() => {
     const r = [...rows];
     const acc = (x: (typeof rows)[number]) => x.current.accuracy ?? 101;
@@ -32,8 +33,8 @@ export default function Chapters() {
     if (sort === 'highest') r.sort((a, b) => acc(b) - acc(a));
     if (sort === 'incorrect') r.sort((a, b) => b.orig.incorrect - a.orig.incorrect);
     if (sort === 'least-practiced') r.sort((a, b) => a.prac.answered - b.prac.answered);
-    return r;
-  }, [rows, sort]);
+    return band ? r.filter((x) => classify(x.current.accuracy) === band) : r;
+  }, [rows, sort, band]);
 
   return (
     <div className="fade-in space-y-5">
@@ -55,6 +56,16 @@ export default function Chapters() {
           </select>
         </label>
       </header>
+      <BandSummary values={rows.map((x) => x.current.accuracy)} noun="chapters" selected={band} onSelect={setBand} />
+      {band && (
+        <div className="flex items-center gap-2 text-sm text-muted">
+          Showing {sorted.length} {band} chapter{sorted.length === 1 ? '' : 's'} ·
+          <button className="text-cyan hover:underline" onClick={() => setBand(null)}>
+            show all
+          </button>
+        </div>
+      )}
+      {sorted.length === 0 && <Empty title={`No ${band} chapters`} />}
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {sorted.map(({ c, qs, orig, prac, current }) => (
           <Link key={c.id} to={`/chapters/${c.id}`} className="panel group flex flex-col gap-3 p-4 transition-colors hover:border-cyan/40">

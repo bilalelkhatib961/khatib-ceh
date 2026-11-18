@@ -3,11 +3,11 @@ import { Link, useParams } from 'react-router-dom';
 import { BookOpen, Flame, Play } from 'lucide-react';
 import { useApp } from '../hooks/useApp';
 import { useLauncher } from '../hooks/useLauncher';
-import { Bar, ClassBadge, Crumbs, Empty, Pct, SectionTitle, StatCard } from '../components/ui';
+import { BandSummary, Bar, ClassBadge, Crumbs, Empty, Pct, SectionTitle, StatCard } from '../components/ui';
 import { TrendLine } from '../components/Charts';
 import QuestionList from '../components/QuestionList';
 import { Mini } from './Chapters';
-import { currentStatsFor, CURRENT_RULE, fmtDate, originalStatsFor, practiceStatsFor } from '../utils/stats';
+import { Classification, classify, currentStatsFor, CURRENT_RULE, fmtDate, originalStatsFor, practiceStatsFor } from '../utils/stats';
 import { eligible, MODE_CONFIG, shuffle } from '../utils/exam';
 import { byPriority, isMistake } from '../utils/practice';
 
@@ -16,6 +16,7 @@ export default function ChapterDetail() {
   const app = useApp();
   const { launch, dialog } = useLauncher();
   const [browse, setBrowse] = useState(false);
+  const [band, setBand] = useState<Classification | null>(null);
   const ch = app.chById.get(chapterId ?? '');
   const qs = useMemo(() => app.questions.filter((q) => q.chapterId === chapterId), [app.questions, chapterId]);
   if (!ch) return <Empty title="Chapter not found" />;
@@ -24,7 +25,9 @@ export default function ChapterDetail() {
   const ids = new Set(qs.map((q) => q.id));
   const prac = practiceStatsFor(ids, app.attempts);
   const current = currentStatsFor(qs, app.progress);
-  const objs =ch.objectiveIds.map((id) => app.objById.get(id)!).filter(Boolean);
+  const objs = ch.objectiveIds.map((id) => app.objById.get(id)!).filter(Boolean);
+  const objAcc = new Map(objs.map((o) => [o.id, currentStatsFor(qs.filter((q) => q.learningObjectiveId === o.id), app.progress).accuracy]));
+  const shownObjs = band ? objs.filter((o) => classify(objAcc.get(o.id) ?? null) === band) : objs;
   const scope = `chapter:${ch.id}`;
   const history = app.attempts
     .filter((a) => a.scopeKey === scope)
@@ -99,8 +102,19 @@ export default function ChapterDetail() {
       {browse ? (
         <QuestionList questions={qs} filters={['orig-correct', 'orig-incorrect', 'bookmarked', 'unpracticed', 'needs-review', 'recovered']} showContext />
       ) : (
+        <>
+        <BandSummary values={objs.map((o) => objAcc.get(o.id) ?? null)} noun="objectives" selected={band} onSelect={setBand} />
+        {band && (
+          <div className="flex items-center gap-2 text-sm text-muted">
+            Showing {shownObjs.length} {band} objective{shownObjs.length === 1 ? '' : 's'} ·
+            <button className="text-cyan hover:underline" onClick={() => setBand(null)}>
+              show all
+            </button>
+          </div>
+        )}
+        {shownObjs.length === 0 && <Empty title={`No ${band} objectives in this chapter`} />}
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-          {objs.map((o) => {
+          {shownObjs.map((o) => {
             const oq = qs.filter((q) => q.learningObjectiveId === o.id);
             const os = originalStatsFor(oq, app.progress);
             const oc = currentStatsFor(oq, app.progress);
@@ -133,6 +147,7 @@ export default function ChapterDetail() {
             );
           })}
         </div>
+        </>
       )}
     </div>
   );
