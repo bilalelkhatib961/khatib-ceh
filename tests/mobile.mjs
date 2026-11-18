@@ -7,7 +7,7 @@ import path from 'node:path';
 const BASE = process.argv[2] ?? 'http://localhost:5173';
 const OUT = path.resolve('tests/screens');
 fs.mkdirSync(OUT, { recursive: true });
-const exe = ['C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe', 'C:/Program Files/Google/Chrome/Application/chrome.exe'].find((p) => fs.existsSync(p));
+const exe = ['C:/Program Files/Google/Chrome/Application/chrome.exe', 'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe'].find((p) => fs.existsSync(p));
 const browser = await puppeteer.launch({ executablePath: exe, headless: true });
 const page = await browser.newPage();
 await page.setViewport({ width: 390, height: 844, isMobile: true, hasTouch: true, deviceScaleFactor: 1 });

@@ -22,7 +22,9 @@ export default function ExamRunner() {
   useEffect(() => setS(app.activeSession), [app.activeSession]);
 
   const qids = useMemo(() => (s ? s.questionIds.filter((id) => app.qById.has(id)) : []), [s, app.qById]);
-  const remaining = s ? Math.max(0, Math.floor((s.deadline - now) / 1000)) : 0;
+  const untimed = !!s && !s.deadline; // deadline 0 = no time limit
+  const remaining = s && !untimed ? Math.max(0, Math.floor((s.deadline - now) / 1000)) : 0;
+  const elapsed = s ? Math.max(0, Math.floor((now - new Date(s.startedAt).getTime()) / 1000)) : 0;
 
   const update = useCallback((fn: (x: ActiveSession) => ActiveSession) => {
     setS((prev) => {
@@ -72,7 +74,7 @@ export default function ExamRunner() {
 
   // auto-submit at deadline (also when reopening after the deadline passed)
   useEffect(() => {
-    if (s && remaining <= 0 && !submittedRef.current) submit(true);
+    if (s && !untimed && remaining <= 0 && !submittedRef.current) submit(true);
   }, [remaining, s, submit]);
 
   const q = s ? app.qById.get(qids[s.current]) : undefined;
@@ -122,7 +124,7 @@ export default function ExamRunner() {
   const answered = qids.filter((id) => (s.answers[id] ?? []).length > 0).length;
   const unanswered = qids.length - answered;
   const markedIds = qids.filter((id) => s.marked[id]);
-  const low = remaining < 300;
+  const low = !untimed && remaining < 300;
   const large = app.settings.questionFontSize === 'large';
 
   return (
@@ -136,7 +138,7 @@ export default function ExamRunner() {
             </div>
           </div>
           <div className={`flex items-center gap-2 rounded-lg border px-3 py-1.5 font-mono text-xl font-semibold ${low ? 'border-bad/60 text-bad' : 'border-cyan/30 text-cyan'}`} aria-live="polite">
-            <Timer size={18} /> {fmtClock(remaining)}
+            <Timer size={18} /> {untimed ? <span title="No time limit · elapsed time">{fmtClock(elapsed)}</span> : fmtClock(remaining)}
           </div>
         </div>
 
@@ -231,7 +233,7 @@ export default function ExamRunner() {
       <Modal open={confirm} onClose={() => setConfirm(false)} title="Submit assessment?">
         <div className="space-y-3 text-sm">
           <p>
-            You answered <b className="font-mono text-cyan">{answered}</b> of <b className="font-mono">{qids.length}</b> questions. Time remaining: <span className="font-mono">{fmtClock(remaining)}</span>.
+            You answered <b className="font-mono text-cyan">{answered}</b> of <b className="font-mono">{qids.length}</b> questions. {untimed ? <>Time spent: <span className="font-mono">{fmtClock(elapsed)}</span> (no time limit).</> : <>Time remaining: <span className="font-mono">{fmtClock(remaining)}</span>.</>}
           </p>
           {unanswered > 0 && (
             <div className="flex gap-2 rounded-lg border border-warn/40 bg-warn/5 p-3 text-warn">

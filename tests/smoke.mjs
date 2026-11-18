@@ -7,7 +7,7 @@ import path from 'node:path';
 const BASE = process.argv[2] ?? 'http://localhost:5173';
 const OUT = path.resolve('tests/screens');
 fs.mkdirSync(OUT, { recursive: true });
-const exe = ['C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe', 'C:/Program Files/Google/Chrome/Application/chrome.exe'].find((p) => fs.existsSync(p));
+const exe = ['C:/Program Files/Google/Chrome/Application/chrome.exe', 'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe'].find((p) => fs.existsSync(p));
 
 const results = [];
 const check = (name, ok, detail = '') => {
@@ -85,7 +85,7 @@ try {
   await page.waitForFunction(() => location.hash.includes('/exam/run'));
   await new Promise((r) => setTimeout(r, 600));
   t = await text();
-  check('exam runner shows question 1 and timer', has(t, 'Question 1') && /00:1[45]:\d\d/.test(t));
+  check('exam runner shows question 1 and elapsed clock (LO quiz is untimed)', has(t, 'Question 1') && /00:00:\d\d/.test(t));
   check('exam does not reveal answers', !has(t, 'Correct answer') && !has(t, 'Explanation'));
   await page.keyboard.press('1');
   await page.keyboard.press('n');
@@ -100,7 +100,7 @@ try {
   await new Promise((r) => setTimeout(r, 1200));
   t = await text();
   const after = t.match(/(\d\d:\d\d:\d\d)/)?.[1];
-  check('session survives reload (timer not reset)', !!before && !!after && after <= before, `${before} -> ${after}`);
+  check('session survives reload (elapsed time continues, not reset)', !!before && !!after && after >= before, `${before} -> ${after}`);
   check('answers preserved after reload', /answered 2/.test(t), t.match(/answered \d+/)?.[0]);
   check('marked-for-review preserved', has(t, 'Marked for review (1)'));
   // submit

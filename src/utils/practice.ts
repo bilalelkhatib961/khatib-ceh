@@ -1,6 +1,6 @@
 import type { Chapter, LearningObjective, Question } from '../types';
 import type { QuestionProgress } from './stats';
-import { originalStatsFor, practiceStatsFor } from './stats';
+import { currentStatsFor, originalStatsFor, practiceStatsFor } from './stats';
 import type { AttemptResult } from '../types';
 import { eligible, shuffle } from './exam';
 
@@ -23,15 +23,12 @@ export function isMistake(p: QuestionProgress | undefined) {
   return p.origIncorrect > 0;
 }
 
-/** Combined performance used for ranking weakness: latest practice accuracy when available, else original. */
+/** Performance used for ranking weakness: current standing (most recent answer per question). */
 export function weaknessScore(qs: Question[], progress: Map<string, QuestionProgress>, attempts: AttemptResult[]) {
   const orig = originalStatsFor(qs, progress);
   const prac = practiceStatsFor(new Set(qs.map((q) => q.id)), attempts);
-  const blend =
-    prac.accuracy !== null && orig.accuracy !== null
-      ? (orig.accuracy * orig.attempts + prac.accuracy * prac.answered * 2) / (orig.attempts + prac.answered * 2)
-      : (prac.accuracy ?? orig.accuracy);
-  return { orig, prac, blend };
+  const current = currentStatsFor(qs, progress);
+  return { orig, prac, current, blend: current.accuracy };
 }
 
 export function weakestChapters(chapters: Chapter[], questions: Question[], progress: Map<string, QuestionProgress>, attempts: AttemptResult[], n = 5) {
@@ -45,7 +42,7 @@ export function weakestChapters(chapters: Chapter[], questions: Question[], prog
 export function weakestObjectives(objs: LearningObjective[], questions: Question[], progress: Map<string, QuestionProgress>, attempts: AttemptResult[], n = 5) {
   return objs
     .map((o) => ({ o, ...weaknessScore(questions.filter((q) => q.learningObjectiveId === o.id), progress, attempts) }))
-    .filter((x) => x.blend !== null && x.orig.attempts + x.prac.answered >= 3)
+    .filter((x) => x.blend !== null && x.current.answered >= 3)
     .sort((a, b) => a.blend! - b.blend! || b.orig.incorrect - a.orig.incorrect)
     .slice(0, n);
 }

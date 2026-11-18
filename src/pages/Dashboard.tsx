@@ -81,7 +81,7 @@ export default function Dashboard() {
     const ch = app.chById.get(o.chapterId)!;
     recs.push({
       title: `LO quiz: ${o.name}`,
-      reason: `Your weakest objective (${fmtPct(weakObj[0].blend)} combined accuracy, ${weakObj[0].orig.incorrect} original misses) in Ch ${ch.number}.`,
+      reason: `Your weakest objective (${fmtPct(weakObj[0].blend)} current accuracy, ${weakObj[0].orig.incorrect} original misses) in Ch ${ch.number}.`,
       action: () => nav(`/chapters/${ch.id}/${o.id}`),
       icon: Target,
     });

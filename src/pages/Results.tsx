@@ -88,8 +88,8 @@ export default function Results() {
       qs = pickSpread(eligible(app.questions.filter((q) => q.chapterId === a.chapterId)), MODE_CONFIG['chapter-quiz'].count, (q) => q.learningObjectiveId ?? '');
       req = MODE_CONFIG['chapter-quiz'].count;
     } else if (a.mode === 'objective-quiz') {
-      qs = shuffle(eligible(app.questions.filter((q) => q.learningObjectiveId === a.learningObjectiveId))).slice(0, MODE_CONFIG['objective-quiz'].count);
-      req = MODE_CONFIG['objective-quiz'].count;
+      qs = shuffle(eligible(app.questions.filter((q) => q.learningObjectiveId === a.learningObjectiveId)));
+      req = qs.length;
     } else {
       const kind = (a.practiceKind ?? 'custom') as PracticeKind;
       qs = ['mistakes', 'bookmarks', 'weak-chapters', 'weak-objectives', 'unpracticed'].includes(kind)
@@ -181,7 +181,7 @@ export default function Results() {
           <StatCard label="Correct" value={<span className="text-ok">{a.correctCount}</span>} accent="ok" />
           <StatCard label="Incorrect" value={<span className="text-bad">{a.incorrectCount}</span>} accent="bad" />
           <StatCard label="Unanswered" value={a.unansweredCount} accent="warn" />
-          <StatCard label="Time spent" value={fmtDuration(a.durationSeconds)} sub={`limit ${fmtDuration(a.timeLimitSeconds)}`} />
+          <StatCard label="Time spent" value={fmtDuration(a.durationSeconds)} sub={`${a.timeLimitSeconds > 0 ? 'limit ' + fmtDuration(a.timeLimitSeconds) : 'no time limit'}`} />
           <StatCard label="Avg / question" value={`${Math.round(a.durationSeconds / Math.max(1, a.totalQuestions))}s`} />
           <StatCard label="Previous best" value={<Pct v={prevBest} digits={1} />} sub={`${comparable.length} earlier attempt(s)`} />
           <StatCard label="Previous" value={<Pct v={prev?.score ?? null} digits={1} />} sub={prev ? fmtDate(prev.completedAt) : '—'} />

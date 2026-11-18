@@ -51,6 +51,8 @@ export interface QuestionProgress {
   origCorrect: number;
   origIncorrect: number;
   origUnknown: number;
+  /** Result of the most recent original CEH attempt (by screenshot time). */
+  origLatest: 'correct' | 'incorrect' | null;
   events: PracticeEvent[]; // chronological
   state: LearningState;
   misses: number;
@@ -84,13 +86,15 @@ export function computeProgress(
 ): Map<string, QuestionProgress> {
   const map = new Map<string, QuestionProgress>();
   for (const q of questions)
-    map.set(q.id, { origCorrect: 0, origIncorrect: 0, origUnknown: 0, events: [], state: 'unpracticed', misses: 0, correct: 0, streak: 0, priority: 0 });
-  for (const a of original) {
+    map.set(q.id, { origCorrect: 0, origIncorrect: 0, origUnknown: 0, origLatest: null, events: [], state: 'unpracticed', misses: 0, correct: 0, streak: 0, priority: 0 });
+  const origSorted = [...original].sort((a, b) => (a.attemptedAt ?? '').localeCompare(b.attemptedAt ?? ''));
+  for (const a of origSorted) {
     const p = map.get(a.questionId);
     if (!p) continue;
     if (a.result === 'correct') p.origCorrect++;
     else if (a.result === 'incorrect') p.origIncorrect++;
     else p.origUnknown++;
+    if (a.result === 'correct' || a.result === 'incorrect') p.origLatest = a.result;
   }
   const sorted = [...attempts].sort((a, b) => a.completedAt.localeCompare(b.completedAt));
   for (const at of sorted)
@@ -127,6 +131,42 @@ export function computeProgress(
       p.origCorrect * 0.5;
   }
   return map;
+}
+
+export interface CurrentStats {
+  correct: number; // questions whose most recent answer is correct
+  answered: number; // questions with any answer (original or practice)
+  practiced: number; // of those, how many have been answered in KHATIB CEH practice
+  accuracy: number | null;
+}
+
+/*
+ * Current standing: each question counts once, using its MOST RECENT answer —
+ * the latest KHATIB CEH practice answer if it has been practiced, otherwise the
+ * latest original CEH result. This drives the badges, progress bars and weakness
+ * rankings, so practice improvements are reflected immediately.
+ */
+export const CURRENT_RULE =
+  'Current accuracy: each question counts once, using its most recent answer: your latest practice answer if you have practiced it, otherwise your original CEH result.';
+
+export function currentStatsFor(questions: Question[], progress: Map<string, QuestionProgress>): CurrentStats {
+  let correct = 0;
+  let answered = 0;
+  let practiced = 0;
+  for (const q of questions) {
+    const p = progress.get(q.id);
+    if (!p) continue;
+    const last = p.events[p.events.length - 1];
+    if (last) {
+      answered++;
+      practiced++;
+      if (last.result === 'correct') correct++;
+    } else if (p.origLatest) {
+      answered++;
+      if (p.origLatest === 'correct') correct++;
+    }
+  }
+  return { correct, answered, practiced, accuracy: answered ? (correct / answered) * 100 : null };
 }
 
 export function originalStatsFor(questions: Question[], progress: Map<string, QuestionProgress>): OrigStats {
@@ -190,6 +230,9 @@ export function fmtDuration(sec: number) {
   const s = sec % 60;
   return h ? `${h}h ${String(m).padStart(2, '0')}m` : `${m}m ${String(s).padStart(2, '0')}s`;
 }
+
+/** A time limit for display; 0 means the assessment is untimed. */
+export const fmtLimit = (sec: number) => (sec > 0 ? fmtDuration(sec) : 'No time limit');
 
 export function fmtClock(sec: number) {
   sec = Math.max(0, Math.floor(sec));

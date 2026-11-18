@@ -4,7 +4,8 @@ import { SCHEMA_VERSION } from '../types';
 export const MODE_CONFIG: Record<'mock-exam' | 'chapter-quiz' | 'objective-quiz', { count: number; seconds: number; label: string }> = {
   'mock-exam': { count: 125, seconds: 4 * 3600, label: 'Full Mock Exam' },
   'chapter-quiz': { count: 30, seconds: 3600, label: 'Chapter Quiz' },
-  'objective-quiz': { count: 10, seconds: 15 * 60, label: 'Learning Objective Quiz' },
+  // count 0 = every verified question in the objective; seconds 0 = untimed
+  'objective-quiz': { count: 0, seconds: 0, label: 'Learning Objective Quiz' },
 };
 
 export function uuid(): string {
@@ -95,7 +96,7 @@ export function createSession(spec: SessionSpec): ActiveSession {
     chapterId: spec.chapterId ?? null,
     learningObjectiveId: spec.learningObjectiveId ?? null,
     startedAt: new Date().toISOString(),
-    deadline: Date.now() + spec.seconds * 1000,
+    deadline: spec.seconds > 0 ? Date.now() + spec.seconds * 1000 : 0, // 0 = untimed
     timeLimitSeconds: spec.seconds,
     questionIds: spec.questions.map((q) => q.id),
     optionOrders,
@@ -133,7 +134,8 @@ export function gradeSession(s: ActiveSession, byId: Map<string, Question>, bank
   const correctCount = answers.filter((a) => a.result === 'correct').length;
   const unansweredCount = answers.filter((a) => a.result === 'unanswered').length;
   const completed = new Date();
-  const duration = Math.min(s.timeLimitSeconds, Math.round((completed.getTime() - new Date(s.startedAt).getTime()) / 1000));
+  const elapsed = Math.round((completed.getTime() - new Date(s.startedAt).getTime()) / 1000);
+  const duration = s.timeLimitSeconds > 0 ? Math.min(s.timeLimitSeconds, elapsed) : elapsed;
   return {
     schemaVersion: SCHEMA_VERSION,
     id: s.id,

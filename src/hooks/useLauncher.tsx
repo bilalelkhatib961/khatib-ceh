@@ -4,7 +4,7 @@ import { AlertTriangle, Play } from 'lucide-react';
 import { Modal } from '../components/ui';
 import { useApp } from './useApp';
 import { createSession, SessionSpec } from '../utils/exam';
-import { fmtDuration } from '../utils/stats';
+import { fmtLimit } from '../utils/stats';
 
 /** Shared "start an assessment" flow with insufficient-question and active-session handling. */
 export function useLauncher() {
@@ -40,7 +40,7 @@ export function useLauncher() {
                 </div>
                 <div className="panel p-3">
                   <div className="label">Time limit</div>
-                  <div className="stat text-xl">{fmtDuration(spec.seconds)}</div>
+                  <div className="stat text-xl">{fmtLimit(spec.seconds)}</div>
                 </div>
               </div>
               {short && (
@@ -48,7 +48,7 @@ export function useLauncher() {
                   <AlertTriangle size={18} className="shrink-0" />
                   <span>
                     Only <b>{spec.questions.length}</b> verified unique questions are available (requested {spec.requestedCount}). All available questions will be used — none are
-                    duplicated or invented. The {fmtDuration(spec.seconds)} time limit is kept.
+                    duplicated or invented. {spec.seconds > 0 ? `The ${fmtLimit(spec.seconds)} time limit is kept.` : ''}
                   </span>
                 </div>
               )}
@@ -58,7 +58,7 @@ export function useLauncher() {
                   <span>An unfinished assessment (“{app.activeSession.name}”) exists. Starting a new one discards it without saving.</span>
                 </div>
               )}
-              <p className="text-muted">Answers are not revealed until you submit. The timer keeps running if you close or refresh the page.</p>
+              <p className="text-muted">Answers are not revealed until you submit. {spec.seconds > 0 ? 'The timer keeps running if you close or refresh the page.' : 'Untimed: your progress is saved if you close or refresh the page.'}</p>
             </>
           )}
           <div className="flex justify-end gap-2">

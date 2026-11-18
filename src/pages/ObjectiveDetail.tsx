@@ -6,7 +6,7 @@ import { useLauncher } from '../hooks/useLauncher';
 import { ClassBadge, Crumbs, Empty, Pct, SectionTitle, StatCard } from '../components/ui';
 import { TrendLine } from '../components/Charts';
 import QuestionList from '../components/QuestionList';
-import { fmtDate, originalStatsFor, practiceStatsFor } from '../utils/stats';
+import { currentStatsFor, CURRENT_RULE, fmtDate, originalStatsFor, practiceStatsFor } from '../utils/stats';
 import { eligible, MODE_CONFIG, shuffle } from '../utils/exam';
 import { byPriority, isMistake } from '../utils/practice';
 
@@ -24,6 +24,7 @@ export default function ObjectiveDetail() {
 
   const orig = originalStatsFor(qs, app.progress);
   const prac = practiceStatsFor(new Set(qs.map((q) => q.id)), app.attempts);
+  const current = currentStatsFor(qs, app.progress);
   const correctQs = qs.filter((q) => (app.progress.get(q.id)?.origCorrect ?? 0) > 0);
   const incorrectQs = qs.filter((q) => (app.progress.get(q.id)?.origIncorrect ?? 0) > 0);
   const scope = `objective:${obj.id}`;
@@ -39,8 +40,9 @@ export default function ObjectiveDetail() {
       scopeKey: scope,
       chapterId: ch.id,
       learningObjectiveId: obj.id,
-      questions: shuffle(eligible(qs)).slice(0, MODE_CONFIG['objective-quiz'].count),
-      requestedCount: MODE_CONFIG['objective-quiz'].count,
+      // every verified question in the objective (originally correct and incorrect), untimed
+      questions: shuffle(eligible(qs)),
+      requestedCount: eligible(qs).length,
       seconds: MODE_CONFIG['objective-quiz'].seconds,
     });
   const startIncorrect = () => {
@@ -74,13 +76,13 @@ export default function ObjectiveDetail() {
             LEARNING OBJECTIVE {ch.number}.{obj.number}
           </div>
           <h1 className="text-2xl font-bold">{obj.name}</h1>
-          <div className="mt-1">
-            <ClassBadge value={orig.accuracy} />
+          <div className="mt-1" title={CURRENT_RULE}>
+            <ClassBadge value={current.accuracy} />
           </div>
         </div>
         <div className="flex flex-wrap gap-2">
           <button className="btn-primary" onClick={startQuiz}>
-            <Play size={16} /> Start Learning Objective Quiz
+            <Play size={16} /> Start Learning Objective Quiz <span className="font-mono text-xs opacity-80">({eligible(qs).length} q · no timer)</span>
           </button>
           <button className="btn-magenta" onClick={startIncorrect}>
             <Flame size={16} /> Practice Incorrect Questions
@@ -88,8 +90,9 @@ export default function ObjectiveDetail() {
         </div>
       </header>
 
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-        <StatCard label="Original accuracy" value={<Pct v={orig.accuracy} digits={1} />} />
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
+        <StatCard label="Current accuracy" value={<Pct v={current.accuracy} digits={1} />} sub={`${current.correct}/${current.answered} questions · latest answer`} />
+        <StatCard label="Original accuracy" value={<Pct v={orig.accuracy} digits={1} />} sub="original CEH quizzes" />
         <StatCard label="Correct / Incorrect" value={<><span className="text-ok">{orig.correct}</span> / <span className="text-bad">{orig.incorrect}</span></>} sub="original attempts" />
         <StatCard label="Questions" value={qs.length} />
         <StatCard label="Practice accuracy" value={<Pct v={prac.accuracy} digits={1} />} sub={prac.answered ? `${prac.correct}/${prac.answered} answers · latest ${prac.latestScore?.toFixed(0)}%` : 'not practiced yet'} />

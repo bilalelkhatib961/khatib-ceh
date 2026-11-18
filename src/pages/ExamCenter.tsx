@@ -50,9 +50,9 @@ export default function ExamCenter() {
       scopeKey: `objective:${o.id}`,
       chapterId: c.id,
       learningObjectiveId: o.id,
-      questions: shuffle(pool.filter((q) => q.learningObjectiveId === o.id)).slice(0, 10),
-      requestedCount: 10,
-      seconds: 15 * 60,
+      questions: shuffle(pool.filter((q) => q.learningObjectiveId === o.id)),
+      requestedCount: pool.filter((q) => q.learningObjectiveId === o.id).length,
+      seconds: 0, // untimed
     });
   };
   const startPractice = (kind: PracticeKind, count = 30, minutes = 45) =>
@@ -97,7 +97,7 @@ export default function ExamCenter() {
     {
       title: 'Learning Objective Quiz',
       icon: Target,
-      spec: '10 questions · 15 minutes',
+      spec: 'All questions in the objective · no timer',
       text: 'Questions from one learning objective only.',
       action: startObjective,
       body: (
@@ -115,7 +115,7 @@ export default function ExamCenter() {
   const practice: { kind: PracticeKind; icon: typeof Flame; text: string }[] = [
     { kind: 'mistakes', icon: Flame, text: 'Original misses and recent practice misses, highest priority first.' },
     { kind: 'bookmarks', icon: BookMarked, text: `${app.bookmarks.size} bookmarked question(s).` },
-    { kind: 'weak-chapters', icon: TrendingDown, text: 'Your 3 weakest chapters by combined accuracy.' },
+    { kind: 'weak-chapters', icon: TrendingDown, text: 'Your 3 weakest chapters by current accuracy.' },
     { kind: 'weak-objectives', icon: TrendingDown, text: 'Your 5 weakest learning objectives.' },
     { kind: 'unpracticed', icon: Sparkles, text: 'Questions never answered inside KHATIB CEH.' },
   ];

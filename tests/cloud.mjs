@@ -10,7 +10,7 @@ import fs from 'node:fs';
 const BASE = process.argv[2] ?? 'http://localhost:5173';
 const EMAIL = process.env.KHATIB_EMAIL;
 const PASSWORD = process.env.KHATIB_PASSWORD;
-const exe = ['C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe', 'C:/Program Files/Google/Chrome/Application/chrome.exe'].find((p) => fs.existsSync(p));
+const exe = ['C:/Program Files/Google/Chrome/Application/chrome.exe', 'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe'].find((p) => fs.existsSync(p));
 let failed = 0;
 const check = (n, ok, d = '') => {
   if (!ok) failed++;

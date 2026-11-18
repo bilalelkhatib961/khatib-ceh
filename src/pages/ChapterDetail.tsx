@@ -7,7 +7,7 @@ import { Bar, ClassBadge, Crumbs, Empty, Pct, SectionTitle, StatCard } from '../
 import { TrendLine } from '../components/Charts';
 import QuestionList from '../components/QuestionList';
 import { Mini } from './Chapters';
-import { fmtDate, originalStatsFor, practiceStatsFor } from '../utils/stats';
+import { currentStatsFor, CURRENT_RULE, fmtDate, originalStatsFor, practiceStatsFor } from '../utils/stats';
 import { eligible, MODE_CONFIG, pickSpread } from '../utils/exam';
 import { byPriority, isMistake } from '../utils/practice';
 
@@ -23,7 +23,8 @@ export default function ChapterDetail() {
   const orig = originalStatsFor(qs, app.progress);
   const ids = new Set(qs.map((q) => q.id));
   const prac = practiceStatsFor(ids, app.attempts);
-  const objs = ch.objectiveIds.map((id) => app.objById.get(id)!).filter(Boolean);
+  const current = currentStatsFor(qs, app.progress);
+  const objs =ch.objectiveIds.map((id) => app.objById.get(id)!).filter(Boolean);
   const scope = `chapter:${ch.id}`;
   const history = app.attempts
     .filter((a) => a.scopeKey === scope)
@@ -62,8 +63,8 @@ export default function ChapterDetail() {
         <div>
           <div className="font-mono text-xs text-cyan">CHAPTER {String(ch.number).padStart(2, '0')}</div>
           <h1 className="text-2xl font-bold">{ch.name}</h1>
-          <div className="mt-1">
-            <ClassBadge value={orig.accuracy} />
+          <div className="mt-1" title={CURRENT_RULE}>
+            <ClassBadge value={current.accuracy} />
           </div>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -79,8 +80,9 @@ export default function ChapterDetail() {
         </div>
       </header>
 
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
-        <StatCard label="Original accuracy" value={<Pct v={orig.accuracy} digits={1} />} />
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-6">
+        <StatCard label="Current accuracy" value={<Pct v={current.accuracy} digits={1} />} sub={`${current.correct}/${current.answered} questions · latest answer`} />
+        <StatCard label="Original accuracy" value={<Pct v={orig.accuracy} digits={1} />} sub="original CEH quizzes" />
         <StatCard label="Correct / Incorrect" value={<><span className="text-ok">{orig.correct}</span> / <span className="text-bad">{orig.incorrect}</span></>} sub="original attempts" />
         <StatCard label="Questions" value={qs.length} sub={`${orig.verified} verified`} />
         <StatCard label="Objectives" value={objs.length} />
@@ -101,6 +103,7 @@ export default function ChapterDetail() {
           {objs.map((o) => {
             const oq = qs.filter((q) => q.learningObjectiveId === o.id);
             const os = originalStatsFor(oq, app.progress);
+            const oc = currentStatsFor(oq, app.progress);
             const op = practiceStatsFor(new Set(oq.map((q) => q.id)), app.attempts, `objective:${o.id}`);
             const opAny = practiceStatsFor(new Set(oq.map((q) => q.id)), app.attempts);
             return (
@@ -112,17 +115,17 @@ export default function ChapterDetail() {
                     </div>
                     <div className="font-semibold leading-snug group-hover:text-cyan">{o.name}</div>
                   </div>
-                  <ClassBadge value={os.accuracy} />
+                  <ClassBadge value={oc.accuracy} />
                 </div>
                 <div className="grid grid-cols-3 gap-2 text-center">
                   <Mini label="Questions" value={oq.length} />
-                  <Mini label="Correct" value={<span className="text-ok">{os.correct}</span>} />
-                  <Mini label="Incorrect" value={<span className="text-bad">{os.incorrect}</span>} />
+                  <Mini label="Current" value={<Pct v={oc.accuracy} />} />
+                  <Mini label="Original" value={<Pct v={os.accuracy} />} />
                 </div>
-                <Bar value={os.accuracy} />
+                <Bar value={oc.accuracy} />
                 <div className="flex justify-between font-mono text-xs text-muted">
                   <span>
-                    original <Pct v={os.accuracy} />
+                    original <span className="text-ok">{os.correct}✓</span> <span className="text-bad">{os.incorrect}✗</span>
                   </span>
                   <span>{(op.latestScore ?? opAny.latestScore) !== null ? <>latest practice <Pct v={op.latestScore ?? opAny.latestScore} /></> : 'not practiced'}</span>
                 </div>

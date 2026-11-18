@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { Layers } from 'lucide-react';
 import { useApp } from '../hooks/useApp';
 import { Bar, ClassBadge, Pct } from '../components/ui';
-import { originalStatsFor, practiceStatsFor } from '../utils/stats';
+import { currentStatsFor, originalStatsFor, practiceStatsFor } from '../utils/stats';
 
 type SortKey = 'number' | 'lowest' | 'highest' | 'incorrect' | 'least-practiced';
 
@@ -15,7 +15,8 @@ export function useChapterRows() {
         const qs = app.questions.filter((q) => q.chapterId === c.id);
         const orig = originalStatsFor(qs, app.progress);
         const prac = practiceStatsFor(new Set(qs.map((q) => q.id)), app.attempts);
-        return { c, qs, orig, prac };
+        const current = currentStatsFor(qs, app.progress);
+        return { c, qs, orig, prac, current };
       }),
     [app.bank, app.questions, app.progress, app.attempts],
   );
@@ -26,7 +27,7 @@ export default function Chapters() {
   const [sort, setSort] = useState<SortKey>('number');
   const sorted = useMemo(() => {
     const r = [...rows];
-    const acc = (x: (typeof rows)[number]) => x.orig.accuracy ?? 101;
+    const acc = (x: (typeof rows)[number]) => x.current.accuracy ?? 101;
     if (sort === 'lowest') r.sort((a, b) => acc(a) - acc(b));
     if (sort === 'highest') r.sort((a, b) => acc(b) - acc(a));
     if (sort === 'incorrect') r.sort((a, b) => b.orig.incorrect - a.orig.incorrect);
@@ -55,21 +56,25 @@ export default function Chapters() {
         </label>
       </header>
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-        {sorted.map(({ c, qs, orig, prac }) => (
+        {sorted.map(({ c, qs, orig, prac, current }) => (
           <Link key={c.id} to={`/chapters/${c.id}`} className="panel group flex flex-col gap-3 p-4 transition-colors hover:border-cyan/40">
             <div className="flex items-start justify-between gap-2">
               <div>
                 <div className="font-mono text-xs text-cyan">CHAPTER {String(c.number).padStart(2, '0')}</div>
                 <div className="font-semibold leading-snug text-ink group-hover:text-cyan">{c.name}</div>
               </div>
-              <ClassBadge value={orig.accuracy} />
+              <ClassBadge value={current.accuracy} />
             </div>
             <div className="grid grid-cols-3 gap-2 text-center">
               <Mini label="Objectives" value={c.objectiveIds.length} />
               <Mini label="Questions" value={qs.length} />
-              <Mini label="Accuracy" value={<Pct v={orig.accuracy} />} />
+              <Mini label="Current" value={<Pct v={current.accuracy} />} />
             </div>
-            <Bar value={orig.accuracy} />
+            <Bar value={current.accuracy} />
+            <div className="font-mono text-xs text-muted">
+              original <Pct v={orig.accuracy} />
+              {current.practiced > 0 && <span> · {current.practiced} practiced</span>}
+            </div>
             <div className="flex justify-between font-mono text-xs text-muted">
               <span>
                 <span className="text-ok">{orig.correct}</span> correct · <span className="text-bad">{orig.incorrect}</span> incorrect

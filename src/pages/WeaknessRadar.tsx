@@ -6,7 +6,7 @@ import { useLauncher } from '../hooks/useLauncher';
 import { Bar, Pct, SectionTitle } from '../components/ui';
 import QuestionList from '../components/QuestionList';
 import { stateLabel } from '../components/QuestionCard';
-import { originalStatsFor, practiceStatsFor, STATE_RULES } from '../utils/stats';
+import { CURRENT_RULE, originalStatsFor, practiceStatsFor, STATE_RULES } from '../utils/stats';
 import { byPriority, weaknessScore } from '../utils/practice';
 import { eligible } from '../utils/exam';
 import type { LearningState, Question } from '../types';
@@ -149,7 +149,7 @@ export default function WeaknessRadar() {
             <b className="text-ink">Priority</b> = 3 × original misses + 2.5 × practice misses + 2 × current miss streak − 1.5 × current correct streak + 1 if never practiced − 0.5 × original
             correct answers. Repeated misses rank highest.
           </li>
-          <li>Chapter/objective ranking uses combined accuracy: original attempts plus practice answers weighted ×2 (practice reflects your current level).</li>
+          <li>{CURRENT_RULE} Chapters and objectives are ranked by this current accuracy; the original CEH accuracy is shown alongside.</li>
         </ul>
       </details>
 
@@ -230,7 +230,7 @@ function RankTable({ rows }: { rows: { key: string; to: string; label: string; o
           <th className="pb-2">Area</th>
           <th className="pb-2 text-right">Original</th>
           <th className="pb-2 text-right">Practice</th>
-          <th className="pb-2 text-right">Combined</th>
+          <th className="pb-2 text-right">Current</th>
         </tr>
       </thead>
       <tbody>
