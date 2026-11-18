@@ -130,8 +130,8 @@ export default function Results() {
               .join(' · ')}
           </p>
         </div>
-        <div className="flex flex-wrap gap-2">
-          <button className="btn-magenta" onClick={retryIncorrect} disabled={a.correctCount === a.totalQuestions}>
+        <div className="grid w-full grid-cols-2 gap-2 text-center leading-tight sm:flex sm:w-auto sm:flex-wrap sm:leading-normal">
+          <button className="btn-magenta col-span-2" onClick={retryIncorrect} disabled={a.correctCount === a.totalQuestions}>
             <RotateCcw size={16} /> Retry Incorrect Questions
           </button>
           <button className="btn-ghost" onClick={retake}>
@@ -149,7 +149,7 @@ export default function Results() {
         </div>
       </header>
 
-      <div className="panel-glow grid gap-6 p-6 md:grid-cols-[220px_1fr]">
+      <div className="panel-glow grid grid-cols-1 gap-6 p-4 sm:p-6 md:grid-cols-[220px_minmax(0,1fr)]">
         <div className="flex flex-col items-center justify-center">
           <div className="font-mono text-5xl font-bold">
             <Pct v={a.score} digits={1} />
@@ -193,7 +193,7 @@ export default function Results() {
           <SectionTitle>{groupKey === 'chapterId' ? 'Breakdown by chapter' : 'Breakdown by learning objective'} · weakest first</SectionTitle>
           <div className="space-y-2">
             {breakdown.map(([k, g]) => (
-              <div key={k} className="grid grid-cols-[1fr_auto] items-center gap-x-4 gap-y-1 text-sm md:grid-cols-[minmax(0,2fr)_3fr_auto]">
+              <div key={k} className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 gap-y-1 text-sm md:grid-cols-[minmax(0,2fr)_3fr_auto]">
                 <span className="truncate text-ink">{g.label}</span>
                 <span className="hidden md:block">
                   <Bar value={(g.c / g.n) * 100} />
@@ -240,7 +240,7 @@ function ReviewItem({ ans, index, attempt }: { ans: AttemptAnswer; index: number
   const color = ans.result === 'correct' ? 'border-ok/40' : ans.result === 'incorrect' ? 'border-bad/40' : 'border-warn/40';
   void attempt;
   return (
-    <article className={`panel border-l-4 p-5 ${color}`}>
+    <article className={`panel border-l-4 p-4 sm:p-5 ${color}`}>
       <div className="mb-2 flex flex-wrap items-center gap-2 text-xs text-muted">
         <span className="font-mono text-cyan">Q{index + 1}</span>
         <span className={ans.result === 'correct' ? 'text-ok' : ans.result === 'incorrect' ? 'text-bad' : 'text-warn'}>{ans.result.toUpperCase()}</span>
@@ -249,8 +249,8 @@ function ReviewItem({ ans, index, attempt }: { ans: AttemptAnswer; index: number
             <Flag size={11} /> marked
           </span>
         )}
-        <span>{ch ? `Ch ${ch.number} · ${ch.name}` : 'Mock (unclassified)'}</span>
-        {ob && <span>› LO {ob.number} · {ob.name}</span>}
+        <span className="min-w-0">{ch ? `Ch ${ch.number} · ${ch.name}` : 'Mock (unclassified)'}</span>
+        {ob && <span className="min-w-0">› LO {ob.number} · {ob.name}</span>}
         <span className="ml-auto font-mono">{ans.timeSpentSeconds}s</span>
       </div>
       <p className="question-text mb-3 text-[15px] text-ink">{snap.text}</p>
@@ -263,25 +263,28 @@ function ReviewItem({ ans, index, attempt }: { ans: AttemptAnswer; index: number
           return (
             <li key={oid} className={`flex items-start gap-3 rounded-lg border px-3 py-2 text-sm ${isC ? 'border-ok/60 bg-ok/10' : isS ? 'border-bad/60 bg-bad/10' : 'border-line'}`}>
               <span className="font-mono text-xs text-muted">{String.fromCharCode(65 + i)}</span>
-              <span className="flex-1 whitespace-pre-wrap">{o.text}</span>
-              {isC && (
-                <span className="flex items-center gap-1 text-xs text-ok">
-                  <Check size={13} /> Correct answer
-                </span>
-              )}
-              {isS && (
-                <span className={`flex items-center gap-1 text-xs ${isC ? 'text-ok' : 'text-bad'}`}>
-                  {isC ? <Check size={13} /> : <X size={13} />} My answer
-                </span>
-              )}
+              {/* phones: verdicts wrap under the option text */}
+              <div className="flex min-w-0 flex-1 flex-wrap items-start gap-x-3 gap-y-1 sm:flex-nowrap">
+                <span className="min-w-0 basis-full whitespace-pre-wrap wrap-anywhere sm:flex-1 sm:basis-auto">{o.text}</span>
+                {isC && (
+                  <span className="flex shrink-0 items-center gap-1 text-xs text-ok">
+                    <Check size={13} /> Correct answer
+                  </span>
+                )}
+                {isS && (
+                  <span className={`flex shrink-0 items-center gap-1 text-xs ${isC ? 'text-ok' : 'text-bad'}`}>
+                    {isC ? <Check size={13} /> : <X size={13} />} My answer
+                  </span>
+                )}
+              </div>
             </li>
           );
         })}
       </ul>
       {snap.explanation && (
         <details className="mt-3 rounded-lg border border-cyan/20 bg-cyan/5 p-3">
-          <summary className="cursor-pointer text-xs font-medium text-cyan">Explanation · original CEH feedback</summary>
-          <div className="mt-2 space-y-1.5 text-sm leading-relaxed text-ink/90">
+          <summary className="cursor-pointer text-xs font-medium text-cyan touch:-my-3 touch:py-3">Explanation · original CEH feedback</summary>
+          <div className="mt-2 space-y-1.5 text-sm leading-relaxed text-ink/90 wrap-anywhere">
             {snap.explanation.split('\n').map((l, i) => (
               <p key={i}>{l}</p>
             ))}

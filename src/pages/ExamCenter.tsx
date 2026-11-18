@@ -138,7 +138,7 @@ export default function ExamCenter() {
         )}
       </header>
 
-      <section className="grid gap-4 lg:grid-cols-3">
+      <section className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         {modes.map((m) => (
           <div key={m.title} className="panel-glow flex flex-col gap-3 p-5">
             <div className="flex items-center gap-2">
@@ -157,7 +157,7 @@ export default function ExamCenter() {
 
       <section>
         <SectionTitle icon={Flame}>Practice modes</SectionTitle>
-        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-5">
           {practice.map((p) => (
             <button key={p.kind} className="panel flex flex-col items-start gap-2 p-4 text-left hover:border-magenta/50" onClick={() => startPractice(p.kind)}>
               <p.icon size={18} className="text-magenta" />
@@ -171,7 +171,7 @@ export default function ExamCenter() {
 
       <section className="panel p-5">
         <SectionTitle icon={Settings2}>Custom practice</SectionTitle>
-        <div className="grid gap-4 md:grid-cols-[2fr_1fr]">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
           <div>
             <div className="label mb-2">Chapters (none selected = all)</div>
             <div className="flex flex-wrap gap-1.5">
@@ -182,7 +182,7 @@ export default function ExamCenter() {
                     key={c.id}
                     title={c.name}
                     onClick={() => setCustom((x) => ({ ...x, chapters: on ? x.chapters.filter((y) => y !== c.id) : [...x.chapters, c.id] }))}
-                    className={`rounded-md border px-2.5 py-1 font-mono text-xs ${on ? 'border-cyan bg-cyan/15 text-cyan' : 'border-line text-muted hover:text-ink'}`}
+                    className={`rounded-md border px-2.5 py-1 font-mono text-xs touch:min-h-10 touch:min-w-11 ${on ? 'border-cyan bg-cyan/15 text-cyan' : 'border-line text-muted hover:text-ink'}`}
                   >
                     {String(c.number).padStart(2, '0')}
                   </button>
@@ -193,11 +193,11 @@ export default function ExamCenter() {
           <div className="grid grid-cols-2 gap-3">
             <label className="text-xs text-muted">
               Questions
-              <input className="input mt-1 w-full" type="number" min={1} max={500} value={custom.count} onChange={(e) => setCustom((x) => ({ ...x, count: Math.max(1, Number(e.target.value) || 1) }))} />
+              <input className="input mt-1 w-full" type="number" inputMode="numeric" min={1} max={500} value={custom.count} onChange={(e) => setCustom((x) => ({ ...x, count: Math.max(1, Number(e.target.value) || 1) }))} />
             </label>
             <label className="text-xs text-muted">
               Minutes
-              <input className="input mt-1 w-full" type="number" min={1} max={600} value={custom.minutes} onChange={(e) => setCustom((x) => ({ ...x, minutes: Math.max(1, Number(e.target.value) || 1) }))} />
+              <input className="input mt-1 w-full" type="number" inputMode="numeric" min={1} max={600} value={custom.minutes} onChange={(e) => setCustom((x) => ({ ...x, minutes: Math.max(1, Number(e.target.value) || 1) }))} />
             </label>
             <label className="col-span-2 text-xs text-muted">
               Question source

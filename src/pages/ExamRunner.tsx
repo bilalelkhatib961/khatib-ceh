@@ -128,21 +128,21 @@ export default function ExamRunner() {
   const large = app.settings.questionFontSize === 'large';
 
   return (
-    <div className="fade-in grid gap-4 lg:grid-cols-[1fr_300px]">
+    <div className="fade-in grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_300px]">
       <section className="space-y-4">
-        <div className="panel-glow flex flex-wrap items-center justify-between gap-3 p-4">
-          <div className="min-w-0">
+        <div className="panel-glow flex items-center justify-between gap-3 p-4">
+          <div className="min-w-0 flex-1">
             <div className="label text-cyan">{s.name}</div>
             <div className="font-mono text-sm text-muted">
               Question <span className="text-ink">{s.current + 1}</span> / {qids.length} · answered {answered}
             </div>
           </div>
-          <div className={`flex items-center gap-2 rounded-lg border px-3 py-1.5 font-mono text-xl font-semibold ${low ? 'border-bad/60 text-bad' : 'border-cyan/30 text-cyan'}`} aria-live="polite">
+          <div className={`flex shrink-0 items-center gap-2 rounded-lg border px-2.5 py-1.5 font-mono text-lg font-semibold sm:px-3 sm:text-xl ${low ? 'border-bad/60 text-bad' : 'border-cyan/30 text-cyan'}`} aria-live="polite">
             <Timer size={18} /> {untimed ? <span title="No time limit · elapsed time">{fmtClock(elapsed)}</span> : fmtClock(remaining)}
           </div>
         </div>
 
-        <article className="panel p-6">
+        <article className="panel p-4 sm:p-6">
           <div className="mb-1 flex items-center gap-2 text-xs text-muted">
             <span className="font-mono text-cyan">Q{s.current + 1}</span>
             {s.marked[q.id] && (
@@ -163,7 +163,7 @@ export default function ExamRunner() {
                   role={multi ? 'checkbox' : 'radio'}
                   aria-checked={on}
                   onClick={() => choose(oid)}
-                  className={`flex w-full items-start gap-3 rounded-lg border px-4 py-3 text-left transition-colors ${
+                  className={`flex w-full items-start gap-3 rounded-lg border px-3 py-3 text-left transition-colors sm:px-4 ${
                     on ? 'border-cyan/70 bg-cyan/10' : 'border-line bg-bg/40 hover:border-cyan/30'
                   }`}
                 >
@@ -171,14 +171,14 @@ export default function ExamRunner() {
                     {on && <span className={`h-2 w-2 bg-bg ${multi ? 'rounded-sm' : 'rounded-full'}`} />}
                   </span>
                   <span className="font-mono text-xs text-muted">{String.fromCharCode(65 + i)}</span>
-                  <span className={`flex-1 whitespace-pre-wrap ${large ? 'text-base' : 'text-[15px]'} text-ink`}>{o.text}</span>
+                  <span className={`min-w-0 flex-1 whitespace-pre-wrap wrap-anywhere ${large ? 'text-base' : 'text-[15px]'} text-ink`}>{o.text}</span>
                 </button>
               );
             })}
           </div>
         </article>
 
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center">
           <button className="btn-ghost" onClick={() => go(s.current - 1)} disabled={s.current === 0}>
             <ChevronLeft size={16} /> Previous
           </button>
@@ -191,18 +191,18 @@ export default function ExamRunner() {
           <button className="btn-ghost" onClick={clear} disabled={!selected.length}>
             <Eraser size={16} /> Clear Answer
           </button>
-          <button className="btn-ghost" onClick={() => setShowKeys(true)} title="Keyboard shortcuts">
+          <button className="btn-ghost hidden sm:inline-flex" onClick={() => setShowKeys(true)} title="Keyboard shortcuts" aria-label="Keyboard shortcuts">
             <Keyboard size={16} />
           </button>
-          <button className="btn-primary ml-auto" onClick={() => setConfirm(true)} disabled={submitting}>
+          <button className="btn-primary col-span-2 sm:ml-auto" onClick={() => setConfirm(true)} disabled={submitting}>
             <Send size={16} /> Submit Exam
           </button>
         </div>
       </section>
 
-      <aside className="panel h-fit p-4 lg:sticky lg:top-4">
+      <aside className="panel h-fit p-4 lg:sticky lg:top-[calc(1rem+env(safe-area-inset-top))]">
         <div className="label mb-3">Question navigator</div>
-        <div className="grid max-h-[55vh] grid-cols-6 gap-1.5 overflow-y-auto pr-1 sm:grid-cols-8 lg:grid-cols-6">
+        <div className="grid max-h-[55dvh] grid-cols-6 gap-1.5 overflow-y-auto overscroll-contain p-0.5 pr-1 sm:grid-cols-10 lg:grid-cols-6">
           {qids.map((id, i) => {
             const a = (s.answers[id] ?? []).length > 0;
             const m = s.marked[id];
@@ -212,7 +212,7 @@ export default function ExamRunner() {
                 key={id}
                 onClick={() => go(i)}
                 aria-label={`Question ${i + 1}${a ? ', answered' : ', unanswered'}${m ? ', marked for review' : ''}`}
-                className={`relative h-8 rounded font-mono text-xs transition-colors ${
+                className={`relative h-8 rounded font-mono text-xs transition-colors touch:h-10 ${
                   cur ? 'ring-2 ring-magenta' : ''
                 } ${a ? 'bg-cyan/20 text-cyan' : 'bg-bg text-muted'} border ${m ? 'border-warn' : 'border-line'} hover:border-cyan/60`}
               >
@@ -245,14 +245,14 @@ export default function ExamRunner() {
               <div className="mb-1 text-muted">Marked for review:</div>
               <div className="flex flex-wrap gap-1">
                 {markedIds.map((id) => (
-                  <button key={id} className="rounded border border-warn/50 px-2 py-0.5 font-mono text-xs text-warn" onClick={() => (setConfirm(false), go(qids.indexOf(id)))}>
+                  <button key={id} className="min-w-9 rounded border border-warn/50 px-2 py-0.5 font-mono text-xs text-warn touch:min-h-11 touch:min-w-11" onClick={() => (setConfirm(false), go(qids.indexOf(id)))}>
                     {qids.indexOf(id) + 1}
                   </button>
                 ))}
               </div>
             </div>
           )}
-          <div className="flex justify-end gap-2 pt-2">
+          <div className="flex flex-wrap justify-end gap-2 pt-2">
             <button className="btn-ghost" onClick={() => setConfirm(false)}>
               Keep working
             </button>

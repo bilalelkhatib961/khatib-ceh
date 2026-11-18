@@ -70,9 +70,9 @@ export default function ChapterDetail() {
             <ClassBadge value={current.accuracy} />
           </div>
         </div>
-        <div className="flex flex-wrap gap-2">
-          <button className="btn-primary" onClick={startQuiz}>
-            <Play size={16} /> Start Chapter Quiz <span className="font-mono text-xs opacity-80">({eligible(qs).length} q · no timer)</span>
+        <div className="grid w-full grid-cols-1 gap-2 sm:flex sm:w-auto sm:flex-wrap">
+          <button className="btn-primary flex-wrap gap-y-0.5" onClick={startQuiz}>
+            <Play size={16} /> Start Chapter Quiz <span className="whitespace-nowrap font-mono text-xs opacity-80">({eligible(qs).length} q · no timer)</span>
           </button>
           <button className="btn-magenta" onClick={startMistakes}>
             <Flame size={16} /> Practice Chapter Mistakes
@@ -113,7 +113,7 @@ export default function ChapterDetail() {
           </div>
         )}
         {shownObjs.length === 0 && <Empty title={`No ${band} objectives in this chapter`} />}
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {shownObjs.map((o) => {
             const oq = qs.filter((q) => q.learningObjectiveId === o.id);
             const os = originalStatsFor(oq, app.progress);

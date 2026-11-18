@@ -61,7 +61,7 @@ export function useLauncher() {
               <p className="text-muted">Answers are not revealed until you submit. {spec.seconds > 0 ? 'The timer keeps running if you close or refresh the page.' : 'Untimed: your progress is saved if you close or refresh the page.'}</p>
             </>
           )}
-          <div className="flex justify-end gap-2">
+          <div className="flex flex-wrap justify-end gap-2">
             <button className="btn-ghost" onClick={() => setSpec(null)}>
               Cancel
             </button>

@@ -1,8 +1,12 @@
 /** @type {import('tailwindcss').Config} */
 export default {
   content: ['./index.html', './src/**/*.{ts,tsx}'],
+  // hover styles only on devices that can hover: avoids "stuck" hover highlights after a tap on iPhone/iPad
+  future: { hoverOnlyWhenSupported: true },
   theme: {
     extend: {
+      // `touch:` variant = finger input (iPhone, iPad, Android): larger tap targets without changing the desktop layout
+      screens: { touch: { raw: '(pointer: coarse)' } },
       colors: {
         bg: '#070B14',
         panel: '#101624',

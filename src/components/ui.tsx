@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import { ReactNode, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import type { LucideIcon } from 'lucide-react';
 import { Classification, classColor, classify } from '../utils/stats';
@@ -23,7 +23,7 @@ export function StatCard({
         <span className="label">{label}</span>
         {Icon && <Icon size={16} className={color} />}
       </div>
-      <div className="stat mt-2">{value}</div>
+      <div className="stat mt-2 wrap-anywhere">{value}</div>
       {sub && <div className="mt-1 text-xs text-muted">{sub}</div>}
     </div>
   );
@@ -51,11 +51,11 @@ export function ClassBadge({ value, cls }: { value?: number | null; cls?: Classi
 export function SectionTitle({ children, right, icon: Icon }: { children: ReactNode; right?: ReactNode; icon?: LucideIcon }) {
   return (
     <div className="mb-3 flex items-center justify-between gap-3">
-      <h2 className="flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.12em] text-ink">
+      <h2 className="flex min-w-0 items-center gap-2 text-sm font-semibold uppercase tracking-[0.12em] text-ink">
         {Icon && <Icon size={16} className="text-cyan" />}
         {children}
       </h2>
-      {right}
+      {right && <div className="shrink-0 whitespace-nowrap">{right}</div>}
     </div>
   );
 }
@@ -77,7 +77,7 @@ export function Crumbs({ items }: { items: { label: string; to?: string }[] }) {
         <span key={i} className="flex items-center gap-1">
           {i > 0 && <span className="text-line">/</span>}
           {it.to ? (
-            <Link to={it.to} className="hover:text-cyan">
+            <Link to={it.to} className="inline-block py-1 hover:text-cyan touch:-my-2 touch:py-3">
               {it.label}
             </Link>
           ) : (
@@ -90,10 +90,24 @@ export function Crumbs({ items }: { items: { label: string; to?: string }[] }) {
 }
 
 export function Modal({ open, onClose, title, children }: { open: boolean; onClose(): void; title: string; children: ReactNode }) {
+  // stop the page behind the dialog from scrolling (iOS Safari otherwise scrolls the body through the overlay)
+  useEffect(() => {
+    if (!open) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [open]);
   if (!open) return null;
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4" onClick={onClose}>
-      <div className="panel-glow fade-in max-h-[90vh] w-full max-w-lg overflow-auto p-6" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true">
+    <div className="safe-inset fixed inset-0 z-50 flex items-center justify-center bg-black/70" onClick={onClose}>
+      <div
+        className="panel-glow fade-in max-h-full w-full max-w-lg overflow-y-auto overscroll-contain p-5 sm:p-6"
+        onClick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+      >
         <h3 className="mb-4 text-lg font-semibold text-ink">{title}</h3>
         {children}
       </div>

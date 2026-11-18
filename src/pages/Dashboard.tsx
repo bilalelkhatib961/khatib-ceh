@@ -101,7 +101,8 @@ export default function Dashboard() {
           <h1 className="mt-1 text-2xl font-bold text-ink">Study Dashboard</h1>
           <p className="text-sm text-muted">Original CEH assessment results and your KHATIB CEH practice are tracked separately.</p>
         </div>
-        <div className="flex flex-wrap gap-2">
+        {/* phones: 2x2 grid of equal buttons */}
+        <div className="grid w-full grid-cols-2 gap-2 text-center leading-tight sm:flex sm:w-auto sm:flex-wrap sm:leading-normal">
           <button className="btn-primary" onClick={startMock}>
             <Crosshair size={16} /> Start Mock Exam
           </button>
@@ -143,7 +144,7 @@ export default function Dashboard() {
         </div>
       </section>
 
-      <section className="grid gap-4 lg:grid-cols-2">
+      <section className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <div className="panel p-4">
           <SectionTitle>Original accuracy by chapter</SectionTitle>
           <AccuracyBars data={chapterBars} target={app.settings.targetScore} />
@@ -172,7 +173,7 @@ export default function Dashboard() {
         </section>
       )}
 
-      <section className="grid gap-4 lg:grid-cols-3">
+      <section className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         <div className="panel p-4 lg:col-span-1">
           <SectionTitle icon={Target}>Recommended next session</SectionTitle>
           <div className="space-y-2">
@@ -192,7 +193,7 @@ export default function Dashboard() {
           <ul className="space-y-3">
             {weakCh.map((w) => (
               <li key={w.c.id}>
-                <Link to={`/chapters/${w.c.id}`} className="group block">
+                <Link to={`/chapters/${w.c.id}`} className="group block touch:-my-1.5 touch:py-1.5">
                   <div className="flex items-center justify-between gap-2 text-sm">
                     <span className="truncate text-ink group-hover:text-cyan">
                       <span className="font-mono text-muted">{String(w.c.number).padStart(2, '0')}</span> {w.c.name}
@@ -210,7 +211,7 @@ export default function Dashboard() {
           <ul className="space-y-3">
             {weakObj.map((w) => (
               <li key={w.o.id}>
-                <Link to={`/chapters/${w.o.chapterId}/${w.o.id}`} className="group block">
+                <Link to={`/chapters/${w.o.chapterId}/${w.o.id}`} className="group block touch:-my-1.5 touch:py-1.5">
                   <div className="flex items-center justify-between gap-2 text-sm">
                     <span className="truncate text-ink group-hover:text-cyan">
                       <span className="font-mono text-muted">{app.chById.get(w.o.chapterId)?.number}.{w.o.number}</span> {w.o.name}
@@ -225,9 +226,9 @@ export default function Dashboard() {
         </div>
       </section>
 
-      <section className="grid gap-4 lg:grid-cols-2">
+      <section className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <div className="panel p-4">
-          <SectionTitle icon={ListChecks} right={<Link to="/history" className="text-xs text-cyan">All history →</Link>}>
+          <SectionTitle icon={ListChecks} right={<Link to="/history" className="text-xs text-cyan touch:-my-2 touch:py-3">All history →</Link>}>
             Recently completed tests
           </SectionTitle>
           {sorted.length === 0 ? (
@@ -256,7 +257,7 @@ export default function Dashboard() {
           )}
         </div>
         <div className="panel p-4">
-          <SectionTitle icon={BookOpen} right={<Link to="/weakness" className="text-xs text-cyan">Study queue →</Link>}>
+          <SectionTitle icon={BookOpen} right={<Link to="/weakness" className="text-xs text-cyan touch:-my-2 touch:py-3">Study queue →</Link>}>
             Questions requiring more practice
           </SectionTitle>
           <ul className="divide-y divide-line">

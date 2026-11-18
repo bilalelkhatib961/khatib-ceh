@@ -60,10 +60,10 @@ export default function QuestionCard({
   };
 
   return (
-    <article className="panel p-5">
+    <article className="panel p-4 sm:p-5">
       <header className="mb-3 flex flex-wrap items-center gap-2 text-xs">
         {index !== undefined && <span className="font-mono text-cyan">Q{index + 1}</span>}
-        {context && <span className="text-muted">{context}</span>}
+        {context && <span className="min-w-0 text-muted">{context}</span>}
         {!context && ch && (
           <span className="text-muted">
             Ch {ch.number}
@@ -77,17 +77,19 @@ export default function QuestionCard({
             <AlertTriangle size={12} /> Unverified
           </span>
         )}
-        <div className="ml-auto flex items-center gap-1">
-          <button className="rounded p-1.5 text-muted hover:text-cyan" onClick={copy} title="Copy question text">
+        <div className="-my-1 ml-auto flex items-center gap-1 touch:-my-3">
+          <button className="rounded p-1.5 text-muted hover:text-cyan touch:p-3.5" onClick={copy} title="Copy question text" aria-label="Copy question text">
             {copied ? <Check size={15} className="text-ok" /> : <Copy size={15} />}
           </button>
-          <button className="rounded p-1.5 text-muted hover:text-cyan" onClick={() => setShot(q.sourceScreenshotPaths[0])} title="View original screenshot">
+          <button className="rounded p-1.5 text-muted hover:text-cyan touch:p-3.5" onClick={() => setShot(q.sourceScreenshotPaths[0])} title="View original screenshot" aria-label="View original screenshot">
             <ImageIcon size={15} />
           </button>
           <button
-            className={`rounded p-1.5 ${bookmarked ? 'text-magenta' : 'text-muted hover:text-magenta'}`}
+            className={`rounded p-1.5 touch:p-3.5 ${bookmarked ? 'text-magenta' : 'text-muted hover:text-magenta'}`}
             onClick={() => app.toggleBookmark(q.id)}
             title={bookmarked ? 'Remove bookmark' : 'Bookmark'}
+            aria-label={bookmarked ? 'Remove bookmark' : 'Bookmark'}
+            aria-pressed={bookmarked}
           >
             {bookmarked ? <BookmarkCheck size={15} /> : <Bookmark size={15} />}
           </button>
@@ -108,17 +110,20 @@ export default function QuestionCard({
           return (
             <li key={o.id} className={`flex items-start gap-3 rounded-lg border px-3 py-2 ${cls}`}>
               <span className="mt-0.5 font-mono text-xs text-muted">{String.fromCharCode(65 + i)}</span>
-              <span className={`flex-1 ${large ? 'text-base' : 'text-sm'} whitespace-pre-wrap`}>{o.text}</span>
-              {isCorrect && (
-                <span className="flex items-center gap-1 text-xs font-medium text-ok">
-                  <Check size={14} /> Correct{mySel.has(o.id) ? ' · my answer' : ''}
-                </span>
-              )}
-              {isMyWrong && (
-                <span className="flex items-center gap-1 text-xs font-medium text-bad">
-                  <X size={14} /> My original answer
-                </span>
-              )}
+              {/* phones: the verdict sits under the option text so the text keeps the full width */}
+              <div className="flex min-w-0 flex-1 flex-col gap-1 sm:flex-row sm:items-start sm:gap-3">
+                <span className={`min-w-0 flex-1 ${large ? 'text-base' : 'text-sm'} whitespace-pre-wrap wrap-anywhere`}>{o.text}</span>
+                {isCorrect && (
+                  <span className="flex shrink-0 items-center gap-1 text-xs font-medium text-ok">
+                    <Check size={14} /> Correct{mySel.has(o.id) ? ' · my answer' : ''}
+                  </span>
+                )}
+                {isMyWrong && (
+                  <span className="flex shrink-0 items-center gap-1 text-xs font-medium text-bad">
+                    <X size={14} /> My original answer
+                  </span>
+                )}
+              </div>
             </li>
           );
         })}
@@ -141,7 +146,7 @@ export default function QuestionCard({
           {q.explanation ? (
             <div className="rounded-lg border border-cyan/20 bg-cyan/5 p-3">
               <div className="label mb-1 text-cyan">Explanation · original CEH feedback</div>
-              <div className="space-y-1.5 text-sm leading-relaxed text-ink/90">
+              <div className="space-y-1.5 text-sm leading-relaxed text-ink/90 wrap-anywhere">
                 {q.explanation.split('\n').map((l, i) => (
                   <p key={i}>{l}</p>
                 ))}

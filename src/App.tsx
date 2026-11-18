@@ -21,13 +21,13 @@ export default function App() {
   // also wait while the bank is not loaded yet (e.g. the moment right after signing in)
   if (loading || (!bank && !error))
     return (
-      <div className="flex min-h-screen items-center justify-center gap-3 font-mono text-cyan">
+      <div className="safe-inset flex min-h-dvh items-center justify-center gap-3 text-center font-mono text-cyan">
         <Loader2 className="animate-spin" /> {loadingMsg ?? 'Loading question bank…'}
       </div>
     );
   if (error)
     return (
-      <div className="flex min-h-screen items-center justify-center p-6">
+      <div className="safe-inset flex min-h-dvh items-center justify-center">
         <div className="panel max-w-lg p-6">
           <div className="mb-2 flex items-center gap-2 font-semibold text-bad">
             <ShieldAlert /> Could not start KHATIB CEH

@@ -1,5 +1,19 @@
+import { useEffect, useState } from 'react';
 import { Bar, BarChart, CartesianGrid, Cell, Line, LineChart, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { classColor, classify } from '../utils/stats';
+
+/** True on phone-width screens (below Tailwind's `sm` breakpoint), updating on rotation. */
+function useNarrow() {
+  const query = '(max-width: 639px)';
+  const [narrow, setNarrow] = useState(() => typeof window !== 'undefined' && window.matchMedia(query).matches);
+  useEffect(() => {
+    const mq = window.matchMedia(query);
+    const on = () => setNarrow(mq.matches);
+    mq.addEventListener('change', on);
+    return () => mq.removeEventListener('change', on);
+  }, []);
+  return narrow;
+}
 
 const AXIS = { stroke: '#2A3A58', tick: { fill: '#8492A6', fontSize: 11, fontFamily: 'JetBrains Mono, Consolas, monospace' } };
 
@@ -24,12 +38,13 @@ function Tip({ active, payload, label, unit = '%', labelPrefix = '' }: { active?
 
 /** Accuracy per chapter; bars colored by personal classification band (labelled in tooltip + legend below). */
 export function AccuracyBars({ data, target }: { data: { name: string; full: string; value: number; extra?: string }[]; target?: number }) {
+  const narrow = useNarrow(); // 20 two-digit labels do not fit side by side on a phone: label every other bar
   return (
     <div className="h-64">
       <ResponsiveContainer>
         <BarChart data={data} margin={{ top: 8, right: 8, bottom: 0, left: -18 }} barCategoryGap={6}>
           <CartesianGrid stroke="#1E2A40" strokeDasharray="2 4" vertical={false} />
-          <XAxis dataKey="name" {...AXIS} tickLine={false} interval={0} />
+          <XAxis dataKey="name" {...AXIS} tickLine={false} interval={narrow && data.length > 12 ? 1 : 0} />
           <YAxis domain={[0, 100]} {...AXIS} tickLine={false} axisLine={false} ticks={[0, 25, 50, 75, 100]} />
           <Tooltip content={<Tip />} cursor={{ fill: 'rgba(0,245,255,0.06)' }} />
           {target !== undefined && <ReferenceLine y={target} stroke="#FF00A8" strokeDasharray="4 4" strokeWidth={1} />}

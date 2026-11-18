@@ -51,7 +51,7 @@ export default function SettingsPage() {
         </h1>
       </header>
 
-      <section className="grid gap-4 lg:grid-cols-2">
+      <section className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <div className="panel space-y-4 p-5">
           <SectionTitle>Exam & targets</SectionTitle>
           <label className="block text-sm text-muted">
@@ -60,13 +60,15 @@ export default function SettingsPage() {
           </label>
           <label className="block text-sm text-muted">
             Personal target score (%)
-            <input className="input mt-1 w-full" type="number" min={1} max={100} value={s.targetScore} onChange={(e) => app.updateSettings({ targetScore: Math.min(100, Math.max(1, Number(e.target.value) || 85)) })} />
+            <input className="input mt-1 w-full" type="number" inputMode="numeric" min={1} max={100} value={s.targetScore} onChange={(e) => app.updateSettings({ targetScore: Math.min(100, Math.max(1, Number(e.target.value) || 85)) })} />
             <span className="mt-1 block text-xs">A personal goal for practice scores — not an official CEH passing threshold.</span>
           </label>
-          <label className="flex items-center gap-3 text-sm">
-            <input type="checkbox" className="h-4 w-4 accent-cyan" checked={s.shuffleOptions} onChange={(e) => app.updateSettings({ shuffleOptions: e.target.checked })} />
-            Randomize answer option order in assessments
-            <span className="text-xs text-muted">(skipped automatically for “all of the above”-style options)</span>
+          <label className="flex items-start gap-3 text-sm touch:min-h-11 touch:items-center">
+            <input type="checkbox" className="mt-0.5 h-4 w-4 shrink-0 accent-cyan touch:mt-0 touch:h-5 touch:w-5" checked={s.shuffleOptions} onChange={(e) => app.updateSettings({ shuffleOptions: e.target.checked })} />
+            <span>
+              Randomize answer option order in assessments{' '}
+              <span className="text-xs text-muted">(skipped automatically for “all of the above”-style options)</span>
+            </span>
           </label>
           <label className="block text-sm text-muted">
             Question text size
@@ -105,7 +107,7 @@ export default function SettingsPage() {
           </p>
           {app.folder && (
             <p className="font-mono text-xs text-muted">
-              Connected folder: <span className="text-ink">{app.folder}</span>
+              Connected folder: <span className="text-ink wrap-anywhere">{app.folder}</span>
             </p>
           )}
           {app.storageError && <p className="text-xs text-bad">{app.storageError}</p>}
@@ -141,7 +143,7 @@ export default function SettingsPage() {
         </div>
       </section>
 
-      <section className="grid gap-4 lg:grid-cols-2">
+      <section className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <div className="panel p-5">
           <SectionTitle icon={Keyboard}>Keyboard shortcuts (during assessments)</SectionTitle>
           <ShortcutTable />
@@ -167,12 +169,12 @@ export default function SettingsPage() {
               ] as [string, unknown][]
             ).map(([k, v]) => (
               <div key={k} className="contents">
-                <dt className="text-muted">{k}</dt>
+                <dt className="min-w-0 text-muted">{k}</dt>
                 <dd className="text-right font-mono text-ink">{String(v)}</dd>
               </div>
             ))}
           </dl>
-          <p className="mt-3 text-xs text-muted">{String(report.method)}</p>
+          <p className="mt-3 text-xs text-muted wrap-anywhere">{String(report.method)}</p>
         </div>
       </section>
 
@@ -194,7 +196,7 @@ export default function SettingsPage() {
               {l}
             </button>
           ))}
-          <span className="ml-auto self-center font-mono text-xs text-muted">{queue.length} questions</span>
+          <span className="ml-auto self-center whitespace-nowrap font-mono text-xs text-muted">{queue.length} questions</span>
         </div>
         <div className="space-y-3">
           {queue.slice(0, shown).map((q) => (
@@ -236,32 +238,36 @@ function ReviewRow({ qid, onClear }: { qid: string; onClear(): void }) {
         <span className="font-mono">{q.id}</span>
         <span>{q.sources.join(', ')}</span>
         {q.answerBasis && <span className="text-ok">answer basis: {q.answerBasis}</span>}
-        <a className="ml-auto inline-flex items-center gap-1 text-cyan" href={`./source/${encodeURI(q.sourceScreenshotPaths[0])}`} target="_blank" rel="noreferrer">
+        <a className="ml-auto inline-flex items-center gap-1 py-1 text-cyan touch:-my-2 touch:min-h-10" href={`./source/${encodeURI(q.sourceScreenshotPaths[0])}`} target="_blank" rel="noreferrer">
           <ImageIcon size={12} /> screenshot
         </a>
       </div>
       {q.issues.length > 0 && <div className="mb-2 text-xs text-warn">{q.issues.join(' · ')}</div>}
       <p className="question-text mb-2 text-sm text-ink">{q.text}</p>
-      <div className="grid gap-1.5">
+      <div className="grid grid-cols-1 gap-1.5">
         {q.options.map((o, i) => (
-          <div key={o.id} className={`flex items-center gap-2 rounded border px-2 py-1.5 text-sm ${o.isCorrect ? 'border-ok/50 bg-ok/5' : 'border-line'}`}>
+          <div key={o.id} className={`flex items-start gap-2 rounded border px-2 py-1.5 text-sm sm:items-center ${o.isCorrect ? 'border-ok/50 bg-ok/5' : 'border-line'}`}>
             <span className="font-mono text-xs text-muted">{String.fromCharCode(65 + i)}</span>
-            <span className="flex-1">{o.text}</span>
-            {mine.has(o.id) && <span className="text-[11px] text-muted">my original choice</span>}
-            {pending === o.id ? (
-              <span className="flex gap-1">
-                <button className="btn-primary px-2 py-1 text-xs" onClick={() => (app.setOverride(qid, [o.id], 'verified in review queue'), setPending(null))}>
-                  Confirm
-                </button>
-                <button className="btn-ghost px-2 py-1 text-xs" onClick={() => setPending(null)}>
-                  Cancel
-                </button>
-              </span>
-            ) : (
-              <button className="btn-ghost px-2 py-1 text-xs" onClick={() => setPending(o.id)}>
-                Set correct
-              </button>
-            )}
+            <div className="flex min-w-0 flex-1 flex-col gap-1.5 sm:flex-row sm:items-center sm:gap-2">
+              <span className="min-w-0 flex-1 wrap-anywhere">{o.text}</span>
+              <div className="flex flex-wrap items-center gap-2">
+                {mine.has(o.id) && <span className="text-[11px] text-muted">my original choice</span>}
+                {pending === o.id ? (
+                  <span className="flex gap-1">
+                    <button className="btn-primary px-2 py-1 text-xs" onClick={() => (app.setOverride(qid, [o.id], 'verified in review queue'), setPending(null))}>
+                      Confirm
+                    </button>
+                    <button className="btn-ghost px-2 py-1 text-xs" onClick={() => setPending(null)}>
+                      Cancel
+                    </button>
+                  </span>
+                ) : (
+                  <button className="btn-ghost px-2 py-1 text-xs" onClick={() => setPending(o.id)}>
+                    Set correct
+                  </button>
+                )}
+              </div>
+            </div>
           </div>
         ))}
       </div>

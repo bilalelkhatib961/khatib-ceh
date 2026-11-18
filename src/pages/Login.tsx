@@ -18,7 +18,7 @@ export default function Login() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center p-4">
+    <div className="safe-inset flex min-h-dvh items-center justify-center">
       <form onSubmit={submit} className="panel-glow fade-in w-full max-w-sm space-y-5 p-6">
         <div className="flex items-center gap-3">
           <div className="flex h-11 w-11 items-center justify-center rounded-lg border border-cyan/40 bg-cyan/5">

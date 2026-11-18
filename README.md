@@ -38,7 +38,7 @@ The database setup is in `supabase/schema.sql`. Row-level security limits every 
 
 **Tests:**
 - `node tests/cloud.mjs <url>`: signs in twice as a "laptop" and a "phone" (set the `KHATIB_EMAIL` / `KHATIB_PASSWORD` environment variables first) and checks that sync works between them.
-- `node tests/mobile.mjs <url>`: checks the layout at phone width.
+- `node tests/mobile.mjs <url>`: checks every page at iPhone 18 Pro size (402 × 874, portrait and landscape) for sideways overflow and for form fields small enough to make iOS Safari zoom in. Set `CHROME_PATH` to use a browser other than Chrome or Edge.
 
 ## Connect the JSON storage folder (do this once)
 

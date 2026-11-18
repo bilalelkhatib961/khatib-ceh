@@ -66,7 +66,7 @@ export default function Chapters() {
         </div>
       )}
       {sorted.length === 0 && <Empty title={`No ${band} chapters`} />}
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {sorted.map(({ c, qs, orig, prac, current }) => (
           <Link key={c.id} to={`/chapters/${c.id}`} className="panel group flex flex-col gap-3 p-4 transition-colors hover:border-cyan/40">
             <div className="flex items-start justify-between gap-2">

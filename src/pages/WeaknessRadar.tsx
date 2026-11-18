@@ -135,7 +135,7 @@ export default function WeaknessRadar() {
       </section>
 
       <details className="panel p-4 text-sm text-muted">
-        <summary className="flex cursor-pointer items-center gap-2 text-ink">
+        <summary className="flex cursor-pointer items-center gap-2 text-ink touch:-my-3 touch:py-3">
           <Info size={15} className="text-cyan" /> How states and priority are calculated
         </summary>
         <ul className="mt-3 list-disc space-y-1 pl-5">
@@ -153,7 +153,7 @@ export default function WeaknessRadar() {
         </ul>
       </details>
 
-      <section className="grid gap-4 lg:grid-cols-2">
+      <section className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <div className="panel p-4">
           <SectionTitle icon={TrendingDown}>Weakest chapters</SectionTitle>
           <RankTable
@@ -189,7 +189,7 @@ export default function WeaknessRadar() {
       <section className="panel p-4">
         <SectionTitle icon={Tag}>Topic tags · inferred</SectionTitle>
         <p className="mb-3 text-xs text-muted">Tags are assigned automatically by keyword matching. They are an aid for revision, not an official CEH classification. Original accuracy per tag:</p>
-        <div className="grid gap-x-6 gap-y-2 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-x-6 gap-y-2 sm:grid-cols-2 lg:grid-cols-3">
           {tagRows.map((r) => (
             <div key={r.t} className="text-sm">
               <div className="flex justify-between">
@@ -237,7 +237,7 @@ function RankTable({ rows }: { rows: { key: string; to: string; label: string; o
         {rows.map((r) => (
           <tr key={r.key} className="border-t border-line/60">
             <td className="max-w-0 py-1.5 pr-2">
-              <Link to={r.to} className="block truncate text-ink hover:text-cyan" title={r.label}>
+              <Link to={r.to} className="block truncate text-ink hover:text-cyan touch:-my-1 touch:py-2.5" title={r.label}>
                 {r.label}
               </Link>
             </td>

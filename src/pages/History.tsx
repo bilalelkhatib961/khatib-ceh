@@ -9,6 +9,28 @@ import { fmtDate, fmtDuration } from '../utils/stats';
 import { downloadJson } from './Results';
 import type { AssessmentMode } from '../types';
 
+function Delta({ delta }: { delta: number | null }) {
+  if (delta === null) return <span className="text-muted">first</span>;
+  if (delta > 0)
+    return (
+      <span className="inline-flex items-center text-ok">
+        <ArrowUp size={12} />+{delta.toFixed(1)}
+      </span>
+    );
+  if (delta < 0)
+    return (
+      <span className="inline-flex items-center text-bad">
+        <ArrowDown size={12} />
+        {delta.toFixed(1)}
+      </span>
+    );
+  return (
+    <span className="inline-flex items-center text-muted">
+      <Minus size={12} />0
+    </span>
+  );
+}
+
 export default function History() {
   const app = useApp();
   const [mode, setMode] = useState<'all' | AssessmentMode>('all');
@@ -62,15 +84,15 @@ export default function History() {
         </button>
       </header>
 
-      <div className="panel grid grid-cols-2 gap-2 p-3 md:grid-cols-4 xl:grid-cols-7">
-        <select className="input" value={mode} onChange={(e) => setMode(e.target.value as typeof mode)} aria-label="Assessment type">
+      <div className="panel grid grid-cols-2 items-end gap-2 p-3 md:grid-cols-4 xl:grid-cols-7">
+        <select className="input w-full" value={mode} onChange={(e) => setMode(e.target.value as typeof mode)} aria-label="Assessment type">
           <option value="all">All types</option>
           <option value="mock-exam">Mock examination</option>
           <option value="chapter-quiz">Chapter quiz</option>
           <option value="objective-quiz">Learning objective quiz</option>
           <option value="custom-practice">Custom practice</option>
         </select>
-        <select className="input" value={chapter} onChange={(e) => (setChapter(e.target.value), setObjective('all'))} aria-label="Chapter">
+        <select className="input w-full" value={chapter} onChange={(e) => (setChapter(e.target.value), setObjective('all'))} aria-label="Chapter">
           <option value="all">All chapters</option>
           {app.bank!.chapters.map((c) => (
             <option key={c.id} value={c.id}>
@@ -78,7 +100,7 @@ export default function History() {
             </option>
           ))}
         </select>
-        <select className="input" value={objective} onChange={(e) => setObjective(e.target.value)} aria-label="Learning objective">
+        <select className="input col-span-2 w-full md:col-span-1" value={objective} onChange={(e) => setObjective(e.target.value)} aria-label="Learning objective">
           <option value="all">All objectives</option>
           {objOptions.map((o) => (
             <option key={o.id} value={o.id}>
@@ -86,10 +108,17 @@ export default function History() {
             </option>
           ))}
         </select>
-        <input className="input" type="date" value={from} onChange={(e) => setFrom(e.target.value)} aria-label="From date" />
-        <input className="input" type="date" value={to} onChange={(e) => setTo(e.target.value)} aria-label="To date" />
-        <input className="input" type="number" min={0} max={100} placeholder="Min score" value={minScore} onChange={(e) => setMinScore(e.target.value)} />
-        <input className="input" type="number" min={0} max={100} placeholder="Max score" value={maxScore} onChange={(e) => setMaxScore(e.target.value)} />
+        {/* visible labels: an empty date field shows no placeholder (iOS Safari renders a blank box) */}
+        <label className="flex min-w-0 flex-col gap-1 text-[11px] text-muted">
+          From
+          <input className="input w-full" type="date" value={from} onChange={(e) => setFrom(e.target.value)} />
+        </label>
+        <label className="flex min-w-0 flex-col gap-1 text-[11px] text-muted">
+          To
+          <input className="input w-full" type="date" value={to} onChange={(e) => setTo(e.target.value)} />
+        </label>
+        <input className="input w-full" type="number" inputMode="decimal" min={0} max={100} placeholder="Min score" aria-label="Minimum score" value={minScore} onChange={(e) => setMinScore(e.target.value)} />
+        <input className="input w-full" type="number" inputMode="decimal" min={0} max={100} placeholder="Max score" aria-label="Maximum score" value={maxScore} onChange={(e) => setMaxScore(e.target.value)} />
       </div>
 
       {trend.length > 1 && (
@@ -102,59 +131,76 @@ export default function History() {
       {rows.length === 0 ? (
         <Empty title="No assessments match">Complete a quiz or mock exam to start building your history.</Empty>
       ) : (
-        <div className="panel overflow-x-auto">
-          <table className="w-full min-w-[760px] text-sm">
-            <thead>
-              <tr className="border-b border-line text-left text-xs uppercase tracking-wider text-muted">
-                <th className="px-4 py-3">Assessment</th>
-                <th className="px-2 py-3">Type</th>
-                <th className="px-2 py-3">Date</th>
-                <th className="px-2 py-3 text-right">Score</th>
-                <th className="px-2 py-3 text-right">C / I / U</th>
-                <th className="px-2 py-3 text-right">Duration</th>
-                <th className="px-4 py-3 text-right">vs previous</th>
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map(({ a, delta }) => (
-                <tr key={a.id} className="border-b border-line/60 last:border-0 hover:bg-white/[0.02]">
-                  <td className="px-4 py-2.5">
-                    <Link to={`/results/${a.id}`} className="text-ink hover:text-cyan">
-                      {a.name}
-                    </Link>
-                  </td>
-                  <td className="px-2 py-2.5 text-muted">{MODE_LABEL[a.mode]}</td>
-                  <td className="px-2 py-2.5 font-mono text-xs text-muted">{fmtDate(a.completedAt)}</td>
-                  <td className="px-2 py-2.5 text-right font-mono">
-                    <Pct v={a.score} digits={1} />
-                  </td>
-                  <td className="px-2 py-2.5 text-right font-mono text-xs">
-                    <span className="text-ok">{a.correctCount}</span> / <span className="text-bad">{a.incorrectCount}</span> / <span className="text-warn">{a.unansweredCount}</span>
-                  </td>
-                  <td className="px-2 py-2.5 text-right font-mono text-xs text-muted">{fmtDuration(a.durationSeconds)}</td>
-                  <td className="px-4 py-2.5 text-right font-mono text-xs">
-                    {delta === null ? (
-                      <span className="text-muted">first</span>
-                    ) : delta > 0 ? (
-                      <span className="inline-flex items-center text-ok">
-                        <ArrowUp size={12} />+{delta.toFixed(1)}
-                      </span>
-                    ) : delta < 0 ? (
-                      <span className="inline-flex items-center text-bad">
-                        <ArrowDown size={12} />
-                        {delta.toFixed(1)}
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center text-muted">
-                        <Minus size={12} />0
-                      </span>
-                    )}
-                  </td>
+        <>
+          {/* phones: one card per attempt instead of a sideways-scrolling table */}
+          <ul className="panel divide-y divide-line md:hidden">
+            {rows.map(({ a, delta }) => (
+              <li key={a.id}>
+                <Link to={`/results/${a.id}`} className="block p-4 hover:bg-white/[0.02]">
+                  <div className="flex items-start justify-between gap-3">
+                    <span className="min-w-0 font-medium text-ink wrap-anywhere">{a.name}</span>
+                    <span className="shrink-0 font-mono">
+                      <Pct v={a.score} digits={1} />
+                    </span>
+                  </div>
+                  <div className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-muted">
+                    <span>{MODE_LABEL[a.mode]}</span>
+                    <span className="font-mono">{fmtDate(a.completedAt)}</span>
+                    <span className="font-mono">{fmtDuration(a.durationSeconds)}</span>
+                  </div>
+                  <div className="mt-2 flex items-center justify-between font-mono text-xs">
+                    <span>
+                      <span className="text-ok">{a.correctCount}</span> / <span className="text-bad">{a.incorrectCount}</span> / <span className="text-warn">{a.unansweredCount}</span>{' '}
+                      <span className="text-muted">C / I / U</span>
+                    </span>
+                    <span>
+                      <span className="text-muted">vs previous </span>
+                      <Delta delta={delta} />
+                    </span>
+                  </div>
+                </Link>
+              </li>
+            ))}
+          </ul>
+          <div className="panel hidden overflow-x-auto md:block">
+            <table className="w-full min-w-[760px] text-sm">
+              <thead>
+                <tr className="border-b border-line text-left text-xs uppercase tracking-wider text-muted">
+                  <th className="px-4 py-3">Assessment</th>
+                  <th className="px-2 py-3">Type</th>
+                  <th className="px-2 py-3">Date</th>
+                  <th className="px-2 py-3 text-right">Score</th>
+                  <th className="px-2 py-3 text-right">C / I / U</th>
+                  <th className="px-2 py-3 text-right">Duration</th>
+                  <th className="px-4 py-3 text-right">vs previous</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {rows.map(({ a, delta }) => (
+                  <tr key={a.id} className="border-b border-line/60 last:border-0 hover:bg-white/[0.02]">
+                    <td className="px-4 py-2.5">
+                      <Link to={`/results/${a.id}`} className="text-ink hover:text-cyan touch:-my-2.5 touch:inline-block touch:py-2.5">
+                        {a.name}
+                      </Link>
+                    </td>
+                    <td className="px-2 py-2.5 text-muted">{MODE_LABEL[a.mode]}</td>
+                    <td className="px-2 py-2.5 font-mono text-xs text-muted">{fmtDate(a.completedAt)}</td>
+                    <td className="px-2 py-2.5 text-right font-mono">
+                      <Pct v={a.score} digits={1} />
+                    </td>
+                    <td className="px-2 py-2.5 text-right font-mono text-xs">
+                      <span className="text-ok">{a.correctCount}</span> / <span className="text-bad">{a.incorrectCount}</span> / <span className="text-warn">{a.unansweredCount}</span>
+                    </td>
+                    <td className="px-2 py-2.5 text-right font-mono text-xs text-muted">{fmtDuration(a.durationSeconds)}</td>
+                    <td className="px-4 py-2.5 text-right font-mono text-xs">
+                      <Delta delta={delta} />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
       )}
     </div>
   );

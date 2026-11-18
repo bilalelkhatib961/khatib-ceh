@@ -15,11 +15,21 @@ body {
 }
 
 body {
+  /* long words / URLs break instead of pushing the page wider than a phone screen */
+  overflow-wrap: break-word;
   background-image:
     linear-gradient(rgba(0, 245, 255, 0.035) 1px, transparent 1px),
     linear-gradient(90deg, rgba(0, 245, 255, 0.035) 1px, transparent 1px);
   background-size: 40px 40px;
   background-attachment: fixed;
+}
+
+/* iOS Safari: date fields keep a large intrinsic width (overflowing narrow grids) and center their value */
+input[type='date'] {
+  min-width: 0;
+}
+input[type='date']::-webkit-date-and-time-value {
+  text-align: left;
 }
 
 ::selection {
@@ -82,6 +92,46 @@ body {
   .tab-active {
     @apply bg-cyan/10 text-cyan;
   }
+
+  /* Page side padding that also clears the iPhone Dynamic Island / rounded corners in landscape. */
+  .page-gutter {
+    padding-left: max(1rem, env(safe-area-inset-left));
+    padding-right: max(1rem, env(safe-area-inset-right));
+  }
+  @screen sm {
+    .page-gutter {
+      padding-left: max(1.5rem, env(safe-area-inset-left));
+      padding-right: max(1.5rem, env(safe-area-inset-right));
+    }
+  }
+
+  /* Overlay padding that keeps dialogs clear of the Dynamic Island, home indicator and landscape notch area. */
+  .safe-inset {
+    padding: max(1rem, env(safe-area-inset-top)) max(1rem, env(safe-area-inset-right)) max(1rem, env(safe-area-inset-bottom))
+      max(1rem, env(safe-area-inset-left));
+  }
+
+  /* Touch screens (iPhone/iPad): Apple's 44pt minimum tap size, and 16px form text so iOS Safari does not zoom in on focus. */
+  @media (pointer: coarse) {
+    /* also reaches .btn-primary/-magenta/-ghost/-danger, which @apply btn */
+    .btn {
+      min-height: 44px;
+    }
+    .tab {
+      min-height: 40px;
+    }
+    .input {
+      min-height: 44px;
+      font-size: 16px;
+    }
+  }
+}
+
+@layer utilities {
+  /* break long tokens (URLs, hashes, commands) anywhere; also lets flex/grid children shrink below them */
+  .wrap-anywhere {
+    overflow-wrap: anywhere;
+  }
 }
 
 .fade-in {
@@ -100,6 +150,7 @@ body {
 
 .question-text {
   white-space: pre-wrap;
+  overflow-wrap: anywhere;
   line-height: 1.65;
 }
 

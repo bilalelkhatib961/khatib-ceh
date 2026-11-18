@@ -85,12 +85,12 @@ export default function QuestionList({
   return (
     <div className="space-y-4">
       <div className="panel flex flex-wrap items-center gap-2 p-3">
-        <div className="relative min-w-[200px] flex-1">
+        <div className="relative w-full min-w-0 sm:w-auto sm:min-w-[200px] sm:flex-1">
           <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
-          <input className="input w-full pl-9" placeholder="Search questions and options…" value={query} onChange={(e) => setQuery(e.target.value)} />
+          <input className="input w-full pl-9" enterKeyHint="search" placeholder="Search questions and options…" value={query} onChange={(e) => setQuery(e.target.value)} />
         </div>
         {filters.length > 0 && (
-          <select className="input" value={filter} onChange={(e) => setFilter(e.target.value as FilterKey)} aria-label="Filter">
+          <select className="input w-full sm:w-auto" value={filter} onChange={(e) => setFilter(e.target.value as FilterKey)} aria-label="Filter">
             {(['all', ...filters] as FilterKey[]).map((f) => (
               <option key={f} value={f}>
                 {FILTER_LABEL[f]}
@@ -98,15 +98,15 @@ export default function QuestionList({
             ))}
           </select>
         )}
-        <button className="btn-ghost" onClick={toggleAll} title="Reveal or hide all answers on this list">
+        <button className="btn-ghost flex-1 sm:flex-none" onClick={toggleAll} title="Reveal or hide all answers on this list">
           {allRevealed ? <EyeOff size={15} /> : <Eye size={15} />}
           {allRevealed ? 'Hide All' : 'Reveal All'}
         </button>
-        <button className="btn-ghost" onClick={() => setSingle(!single)} title="Toggle one-question-at-a-time view">
+        <button className="btn-ghost flex-1 sm:flex-none" onClick={() => setSingle(!single)} title="Toggle one-question-at-a-time view">
           {single ? <LayoutList size={15} /> : <Square size={15} />}
           {single ? 'List view' : 'One at a time'}
         </button>
-        <span className="ml-auto font-mono text-xs text-muted">
+        <span className="w-full text-right font-mono text-xs text-muted sm:ml-auto sm:w-auto">
           {list.length} question{list.length === 1 ? '' : 's'}
         </span>
       </div>
@@ -171,7 +171,7 @@ function Pager({ label, onPrev, onNext, prevDisabled, nextDisabled }: { label: s
       <button className="btn-ghost" onClick={onPrev} disabled={prevDisabled}>
         <ChevronLeft size={15} /> Previous
       </button>
-      <span className="font-mono text-xs text-muted">{label}</span>
+      <span className="text-center font-mono text-xs text-muted">{label}</span>
       <button className="btn-ghost" onClick={onNext} disabled={nextDisabled}>
         Next <ChevronRight size={15} />
       </button>
