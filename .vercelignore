@@ -1,0 +1,12 @@
+# Keep the copyrighted question bank, screenshots data and tooling off Vercel.
+# The deployed app loads the bank from your private Supabase database after sign-in.
+public/data
+extraction
+reports
+tests
+user-data
+dist
+node_modules
+.env.local
+start.bat
+.claude

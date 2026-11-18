@@ -1,0 +1,111 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+html,
+body {
+  background: #070b14;
+  color: #e2e8f0;
+  font-family: Inter, 'Segoe UI', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  background-image:
+    linear-gradient(rgba(0, 245, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 245, 255, 0.035) 1px, transparent 1px);
+  background-size: 40px 40px;
+  background-attachment: fixed;
+}
+
+::selection {
+  background: rgba(0, 245, 255, 0.3);
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: #070b14;
+}
+::-webkit-scrollbar-thumb {
+  background: #1e2a40;
+  border-radius: 6px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #2a3a58;
+}
+
+@layer components {
+  .panel {
+    @apply rounded-xl border border-line bg-panel/90;
+  }
+  .panel-glow {
+    @apply rounded-xl border border-cyan/25 bg-panel/90;
+    box-shadow: 0 0 0 1px rgba(0, 245, 255, 0.04), 0 0 24px -12px rgba(0, 245, 255, 0.35);
+  }
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition-colors duration-150 disabled:cursor-not-allowed disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan/60;
+  }
+  .btn-primary {
+    @apply btn bg-cyan/90 text-bg hover:bg-cyan;
+  }
+  .btn-magenta {
+    @apply btn border border-magenta/60 bg-magenta/10 text-magenta hover:bg-magenta/20;
+  }
+  .btn-ghost {
+    @apply btn border border-line bg-panel2 text-ink hover:border-cyan/50 hover:text-cyan;
+  }
+  .btn-danger {
+    @apply btn border border-bad/60 bg-bad/10 text-bad hover:bg-bad/20;
+  }
+  .chip {
+    @apply inline-flex items-center gap-1 rounded-md border px-2 py-0.5 text-xs font-medium;
+  }
+  .label {
+    @apply font-mono text-[11px] uppercase tracking-[0.14em] text-muted;
+  }
+  .stat {
+    @apply font-mono text-2xl font-semibold text-ink;
+  }
+  .input {
+    @apply rounded-lg border border-line bg-bg px-3 py-2 text-sm text-ink placeholder:text-muted/60 focus:border-cyan/60 focus:outline-none;
+  }
+  .tab {
+    @apply rounded-md px-3 py-1.5 text-sm font-medium text-muted transition-colors hover:text-ink;
+  }
+  .tab-active {
+    @apply bg-cyan/10 text-cyan;
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.18s ease-out;
+}
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.question-text {
+  white-space: pre-wrap;
+  line-height: 1.65;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+}

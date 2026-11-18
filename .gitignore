@@ -1,0 +1,21 @@
+# dependencies / build output
+node_modules
+dist
+*.tsbuildinfo
+__pycache__/
+
+# secrets and local tool config
+.env.local
+.env.*.local
+.vercel
+.claude/
+
+# Copyrighted EC-Council content and personal study data: never commit (this repo is public).
+# The deployed app loads the question bank from the private Supabase database after sign-in.
+public/data/
+extraction/*
+!extraction/scripts/
+reports/
+tests/screens/
+user-data/*
+!user-data/.gitkeep
