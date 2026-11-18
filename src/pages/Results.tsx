@@ -85,8 +85,8 @@ export default function Results() {
       qs = pickSpread(eligible(app.questions), MODE_CONFIG['mock-exam'].count, (q) => q.chapterId ?? 'mock');
       req = MODE_CONFIG['mock-exam'].count;
     } else if (a.mode === 'chapter-quiz') {
-      qs = pickSpread(eligible(app.questions.filter((q) => q.chapterId === a.chapterId)), MODE_CONFIG['chapter-quiz'].count, (q) => q.learningObjectiveId ?? '');
-      req = MODE_CONFIG['chapter-quiz'].count;
+      qs = shuffle(eligible(app.questions.filter((q) => q.chapterId === a.chapterId)));
+      req = qs.length;
     } else if (a.mode === 'objective-quiz') {
       qs = shuffle(eligible(app.questions.filter((q) => q.learningObjectiveId === a.learningObjectiveId)));
       req = qs.length;

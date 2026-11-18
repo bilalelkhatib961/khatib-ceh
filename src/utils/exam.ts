@@ -3,7 +3,7 @@ import { SCHEMA_VERSION } from '../types';
 
 export const MODE_CONFIG: Record<'mock-exam' | 'chapter-quiz' | 'objective-quiz', { count: number; seconds: number; label: string }> = {
   'mock-exam': { count: 125, seconds: 4 * 3600, label: 'Full Mock Exam' },
-  'chapter-quiz': { count: 30, seconds: 3600, label: 'Chapter Quiz' },
+  'chapter-quiz': { count: 0, seconds: 0, label: 'Chapter Quiz' }, // every verified question in the chapter, untimed
   // count 0 = every verified question in the objective; seconds 0 = untimed
   'objective-quiz': { count: 0, seconds: 0, label: 'Learning Objective Quiz' },
 };

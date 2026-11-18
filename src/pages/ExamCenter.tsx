@@ -36,9 +36,9 @@ export default function ExamCenter() {
       mode: 'chapter-quiz',
       scopeKey: `chapter:${c.id}`,
       chapterId: c.id,
-      questions: pickSpread(pool.filter((q) => q.chapterId === c.id), 30, (q) => q.learningObjectiveId ?? ''),
-      requestedCount: 30,
-      seconds: 3600,
+      questions: shuffle(pool.filter((q) => q.chapterId === c.id)),
+      requestedCount: pool.filter((q) => q.chapterId === c.id).length,
+      seconds: 0, // untimed
     });
   };
   const startObjective = () => {
@@ -81,8 +81,8 @@ export default function ExamCenter() {
     {
       title: 'Chapter Quiz',
       icon: Layers,
-      spec: '30 questions · 1 hour',
-      text: 'Spread across the chapter’s learning objectives.',
+      spec: 'All questions in the chapter · no timer',
+      text: 'Every verified question from all of the chapter’s learning objectives.',
       action: startChapter,
       body: (
         <select className="input w-full" value={chapter} onChange={(e) => setChapter(e.target.value)}>

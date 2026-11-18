@@ -8,7 +8,7 @@ import { TrendLine } from '../components/Charts';
 import QuestionList from '../components/QuestionList';
 import { Mini } from './Chapters';
 import { currentStatsFor, CURRENT_RULE, fmtDate, originalStatsFor, practiceStatsFor } from '../utils/stats';
-import { eligible, MODE_CONFIG, pickSpread } from '../utils/exam';
+import { eligible, MODE_CONFIG, shuffle } from '../utils/exam';
 import { byPriority, isMistake } from '../utils/practice';
 
 export default function ChapterDetail() {
@@ -37,8 +37,8 @@ export default function ChapterDetail() {
       mode: 'chapter-quiz',
       scopeKey: scope,
       chapterId: ch.id,
-      questions: pickSpread(eligible(qs), MODE_CONFIG['chapter-quiz'].count, (q) => q.learningObjectiveId ?? 'none'),
-      requestedCount: MODE_CONFIG['chapter-quiz'].count,
+      questions: shuffle(eligible(qs)), // every verified question in the chapter
+      requestedCount: eligible(qs).length,
       seconds: MODE_CONFIG['chapter-quiz'].seconds,
     });
   const startMistakes = () => {
@@ -69,7 +69,7 @@ export default function ChapterDetail() {
         </div>
         <div className="flex flex-wrap gap-2">
           <button className="btn-primary" onClick={startQuiz}>
-            <Play size={16} /> Start Chapter Quiz
+            <Play size={16} /> Start Chapter Quiz <span className="font-mono text-xs opacity-80">({eligible(qs).length} q · no timer)</span>
           </button>
           <button className="btn-magenta" onClick={startMistakes}>
             <Flame size={16} /> Practice Chapter Mistakes
