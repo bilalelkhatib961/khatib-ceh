@@ -38,6 +38,7 @@ The database setup is in `supabase/schema.sql`. Row-level security limits every 
 
 **Tests:**
 - `node tests/cloud.mjs <url>`: signs in twice as a "laptop" and a "phone" (set the `KHATIB_EMAIL` / `KHATIB_PASSWORD` environment variables first) and checks that sync works between them.
+- `node tests/revision-radar.mjs <url>`: checks Revision Radar end to end (all 20 chapters and 199 concepts, checkboxes, progress maths, persistence, search/filter/sort, import/export, reset confirmations, corrupted storage, other storage keys untouched, iPhone layout).
 - `node tests/mobile.mjs <url>`: checks every page at iPhone 18 Pro size (402 × 874, portrait and landscape) for sideways overflow and for form fields small enough to make iOS Safari zoom in. Set `CHROME_PATH` to use a browser other than Chrome or Edge.
 
 ## Connect the JSON storage folder (do this once)
@@ -72,6 +73,7 @@ Completed assessments are saved as individual JSON files. To set this up:
 | Exam runner | One question at a time, with a navigator, mark-for-review, clear answer, progress that survives refresh or close, and keyboard shortcuts (1–7 / A–G, ←/→, M, X). The mock exam's 4 h countdown keeps running across refresh or close and auto-submits at zero |
 | Results / History | Score breakdowns, answer review, retry incorrect, retake, trends, filters and JSON export |
 | Weakness Radar | Learning states with transparent rules, a prioritized study queue, regression detection and inferred topic tags |
+| Revision Radar | Exam-eve checklist of 199 concepts across all 20 chapters: HIGH / FOCUSED / STANDARD priorities, exam reminders, weakest objectives, search, filters, sorting and JSON backup. Progress is stored only in this browser (`localStorage` key `khatib-ceh:revision-radar:v1`) and is not synced |
 | Settings | Exam date, target score, option shuffling, storage folder, the extraction report and the **manual review queue** |
 
 Graded tests use only questions with a verified correct answer. If a mode has fewer questions than requested, the app tells you before starting and uses all available questions without duplicating any.

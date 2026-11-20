@@ -51,6 +51,7 @@ for (const scr of SCREENS) {
   await visit('/exam-center', 'exam-center');
   await visit('/history', 'history');
   await visit('/weakness', 'radar');
+  await visit('/revision', 'revision');
   await visit('/bookmarks', 'bookmarks');
   await visit('/settings', 'settings');
   // start an objective quiz and look at the runner

@@ -1,6 +1,6 @@
 import { ReactNode, useEffect, useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
-import { BookMarked, Cloud, CloudOff, Crosshair, FolderSync, History, LayoutDashboard, Layers, Menu, Radar, Settings, ShieldCheck, Timer, X } from 'lucide-react';
+import { BookMarked, Cloud, CloudOff, Crosshair, FolderSync, History, LayoutDashboard, Layers, ListChecks, Menu, Radar, Settings, ShieldCheck, Timer, X } from 'lucide-react';
 import { useApp } from '../hooks/useApp';
 
 const NAV = [
@@ -8,6 +8,7 @@ const NAV = [
   { to: '/chapters', label: 'Chapters', icon: Layers },
   { to: '/exam-center', label: 'Exam Center', icon: Crosshair },
   { to: '/weakness', label: 'Weakness Radar', icon: Radar },
+  { to: '/revision', label: 'Revision Radar', icon: ListChecks },
   { to: '/bookmarks', label: 'Bookmarked', icon: BookMarked },
   { to: '/history', label: 'Assessment History', icon: History },
   { to: '/settings', label: 'Settings', icon: Settings },

@@ -11,6 +11,7 @@ import ExamRunner from './pages/ExamRunner';
 import Results from './pages/Results';
 import History from './pages/History';
 import WeaknessRadar from './pages/WeaknessRadar';
+import RevisionRadar from './pages/RevisionRadar';
 import Bookmarks from './pages/Bookmarks';
 import SettingsPage from './pages/Settings';
 import Login from './pages/Login';
@@ -51,6 +52,7 @@ export default function App() {
         <Route path="/results/:attemptId" element={<Results />} />
         <Route path="/history" element={<History />} />
         <Route path="/weakness" element={<WeaknessRadar />} />
+        <Route path="/revision" element={<RevisionRadar />} />
         <Route path="/bookmarks" element={<Bookmarks />} />
         <Route path="/settings" element={<SettingsPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
